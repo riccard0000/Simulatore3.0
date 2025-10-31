@@ -1574,8 +1574,11 @@ const calculatorData = {
                 
                 // Se non specificato, prova a calcolarlo dai parametri specifici
                 if (!costInput) {
-                    if (params.superficie && params.costo_specifico) {
-                        // Per isolamento, infissi, ecc.: superficie × costo
+                    if (Array.isArray(params.righe_opache) && params.righe_opache.length > 0) {
+                        // Isolamento 1.A con tabella: somma dei costi riga
+                        costInput = params.righe_opache.reduce((sum, r) => sum + (parseFloat(r.costo_totale) || 0), 0);
+                    } else if (params.superficie && params.costo_specifico) {
+                        // Per interventi a singolo input: superficie × costo
                         costInput = params.superficie * params.costo_specifico;
                     } else if (params.potenza_contrattuale && params.costo_totale) {
                         // Per teleriscaldamento
