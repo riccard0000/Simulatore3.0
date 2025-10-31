@@ -935,6 +935,22 @@ async function initCalculator() {
         });
     }
 
+    // Helper per verificare se un campo deve essere visibile
+    function isFieldVisible(input, intId) {
+        if (!input.visible_if) return true;
+        
+        const conditionField = input.visible_if.field;
+        const currentValue = state.inputValues[intId]?.[conditionField];
+        
+        // Supporto sia per valore singolo (value) che multiplo (values)
+        if (input.visible_if.values) {
+            return input.visible_if.values.includes(currentValue);
+        } else if (input.visible_if.value !== undefined) {
+            return currentValue === input.visible_if.value;
+        }
+        return true;
+    }
+
     function updateDynamicInputs() {
         dynamicInputsContainer.innerHTML = '';
         
@@ -966,6 +982,11 @@ async function initCalculator() {
             }
 
             interventionData.inputs.forEach(input => {
+                    // Verifica visibilità del campo
+                    if (!isFieldVisible(input, intId)) {
+                        return; // Salta questo campo
+                    }
+                
                 const inputDiv = document.createElement('div');
                 inputDiv.className = 'form-group';
                 
@@ -1338,6 +1359,9 @@ async function initCalculator() {
             const potenzaEl = byId('potenza');
             const costoTot = byId('costo_totale');
             
+            // Se gli elementi non esistono (perché nascosti da visible_if), esci
+            if (!tipoSel) return;
+            
             // Imposta limiti max sui campi potenza/punti in base al tipo selezionato
             if (tipoSel && potenzaEl) {
                 const tipo = tipoSel.value;
@@ -1494,6 +1518,17 @@ async function initCalculator() {
         }
         const value = e.target.type === 'number' ? parseFloat(e.target.value) : e.target.value;
         state.inputValues[intervention][inputId] = value;
+        
+            // Se questo campo influenza la visibilità di altri campi, ricarica la UI
+            const interventionData = calculatorData.interventions[intervention];
+            const hasVisibilityDependencies = interventionData?.inputs?.some(inp => 
+                inp.visible_if?.field === inputId
+            );
+            if (hasVisibilityDependencies) {
+                updateDynamicInputs();
+                applyDynamicMaxLimits(intervention, document.getElementById(`group-${intervention}`));
+                return;
+            }
         
         // Aggiorna i campi computed per questo intervento
         updateComputedFields(intervention);

@@ -900,8 +900,29 @@ const calculatorData = {
                 restrictionNote: 'SOLO per PA/ETS non economici e Soggetti Privati su edifici TERZIARIO. NO ambito residenziale. Deve essere congiunto a installazione pompa di calore elettrica.',
             inputs: [
                 { id: 'tipo_infrastruttura', name: 'Tipo infrastruttura', type: 'select', options: ['Standard monofase (7.4-22kW)', 'Standard trifase (7.4-22kW)', 'Media (22-50kW)', 'Alta (50-100kW)', 'Oltre 100kW'] },
-                { id: 'numero_punti', name: 'Numero punti di ricarica (solo per standard 7.4–22kW)', type: 'number', min: 1, step: 1, help: 'Inserisci il numero di punti per le infrastrutture standard (monofase o trifase).', optional: true },
-                { id: 'potenza', name: 'Potenza dell\'infrastruttura (kW) – solo per 22–50 kW', type: 'number', min: 0, step: 0.1, optional: true },
+                { 
+                    id: 'numero_punti', 
+                    name: 'Numero punti di ricarica (solo per standard 7.4–22kW)', 
+                    type: 'number', 
+                    min: 1, 
+                    step: 1, 
+                    help: 'Inserisci il numero di punti per le infrastrutture standard (monofase o trifase).', 
+                    visible_if: { 
+                        field: 'tipo_infrastruttura', 
+                        values: ['Standard monofase (7.4-22kW)', 'Standard trifase (7.4-22kW)'] 
+                    }
+                },
+                { 
+                    id: 'potenza', 
+                    name: 'Potenza dell\'infrastruttura (kW) – solo per 22–50 kW', 
+                    type: 'number', 
+                    min: 0, 
+                    step: 0.1, 
+                    visible_if: { 
+                        field: 'tipo_infrastruttura', 
+                        values: ['Media (22-50kW)', 'Alta (50-100kW)', 'Oltre 100kW'] 
+                    }
+                },
                 { id: 'costo_totale', name: 'Costo totale sostenuto (€)', type: 'number', min: 0 }
             ],
             calculate: (params, operatorType) => {
