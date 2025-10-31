@@ -900,20 +900,25 @@ const calculatorData = {
                 restrictionNote: 'SOLO per PA/ETS non economici e Soggetti Privati su edifici TERZIARIO. NO ambito residenziale. Deve essere congiunto a installazione pompa di calore elettrica.',
             inputs: [
                 { id: 'tipo_infrastruttura', name: 'Tipo infrastruttura', type: 'select', options: ['Standard monofase (7.4-22kW)', 'Standard trifase (7.4-22kW)', 'Media (22-50kW)', 'Alta (50-100kW)', 'Oltre 100kW'] },
-                { id: 'potenza', name: 'Potenza (kW) - se applicabile', type: 'number', min: 0, step: 0.1 },
+                { id: 'numero_punti', name: 'Numero punti di ricarica (solo per standard 7.4–22kW)', type: 'number', min: 1, step: 1, help: 'Inserisci il numero di punti per le infrastrutture standard (monofase o trifase).', optional: true },
+                { id: 'potenza', name: 'Potenza dell\'infrastruttura (kW) – solo per 22–50 kW', type: 'number', min: 0, step: 0.1, optional: true },
                 { id: 'costo_totale', name: 'Costo totale sostenuto (€)', type: 'number', min: 0 }
             ],
             calculate: (params, operatorType) => {
-                const { tipo_infrastruttura, potenza, costo_totale } = params;
+                const { tipo_infrastruttura, numero_punti, potenza, costo_totale } = params;
                 if (!costo_totale) return 0;
                 
                 // Limiti massimi di costo secondo Art. 5.1.g
                 let costoMassimoAmmissibile;
                 switch(tipo_infrastruttura) {
-                    case 'Standard monofase (7.4-22kW)':
-                        costoMassimoAmmissibile = 2400; break;
-                    case 'Standard trifase (7.4-22kW)':
-                        costoMassimoAmmissibile = 8400; break;
+                    case 'Standard monofase (7.4-22kW)': {
+                        const n = parseInt(numero_punti, 10) || 0;
+                        costoMassimoAmmissibile = 2400 * n; break;
+                    }
+                    case 'Standard trifase (7.4-22kW)': {
+                        const n = parseInt(numero_punti, 10) || 0;
+                        costoMassimoAmmissibile = 8400 * n; break;
+                    }
                     case 'Media (22-50kW)':
                         costoMassimoAmmissibile = potenza * 1200; break;
                     case 'Alta (50-100kW)':
@@ -921,7 +926,7 @@ const calculatorData = {
                     case 'Oltre 100kW':
                         costoMassimoAmmissibile = 110000; break;
                     default:
-                        costoMassimoAmmissibile = 2400;
+                        costoMassimoAmmissibile = 0;
                 }
                 
                 const spesaAmmissibile = Math.min(costo_totale, costoMassimoAmmissibile);
@@ -935,19 +940,38 @@ const calculatorData = {
                 return incentivo;
             },
             explain: (params) => {
-                const { tipo_infrastruttura, potenza, costo_totale } = params;
-                let costoMassimoAmmissibile;
+                const { tipo_infrastruttura, numero_punti, potenza, costo_totale } = params;
+                let costoMassimoAmmissibile = 0;
+                const steps = [];
                 switch(tipo_infrastruttura) {
-                    case 'Standard monofase (7.4-22kW)': costoMassimoAmmissibile=2400; break;
-                    case 'Standard trifase (7.4-22kW)': costoMassimoAmmissibile=8400; break;
-                    case 'Media (22-50kW)': costoMassimoAmmissibile=(potenza||0)*1200; break;
-                    case 'Alta (50-100kW)': costoMassimoAmmissibile=60000; break;
-                    case 'Oltre 100kW': costoMassimoAmmissibile=110000; break;
-                    default: costoMassimoAmmissibile=2400;
+                    case 'Standard monofase (7.4-22kW)': {
+                        const n = parseInt(numero_punti, 10) || 0;
+                        costoMassimoAmmissibile = 2400 * n;
+                        steps.push(`Cmax = 2400 € × N_punti (${n}) = ${costoMassimoAmmissibile.toLocaleString('it-IT')} €`);
+                        break;
+                    }
+                    case 'Standard trifase (7.4-22kW)': {
+                        const n = parseInt(numero_punti, 10) || 0;
+                        costoMassimoAmmissibile = 8400 * n;
+                        steps.push(`Cmax = 8400 € × N_punti (${n}) = ${costoMassimoAmmissibile.toLocaleString('it-IT')} €`);
+                        break;
+                    }
+                    case 'Media (22-50kW)': {
+                        const p = parseFloat(potenza || 0);
+                        costoMassimoAmmissibile = p * 1200;
+                        steps.push(`Cmax = P × 1200 €/kW = ${p.toFixed(1)} × 1200 = ${costoMassimoAmmissibile.toLocaleString('it-IT')} €`);
+                        break;
+                    }
+                    case 'Alta (50-100kW)': costoMassimoAmmissibile = 60000; steps.push(`Cmax = 60.000 € per infrastruttura`); break;
+                    case 'Oltre 100kW': costoMassimoAmmissibile = 110000; steps.push(`Cmax = 110.000 € per infrastruttura`); break;
+                    default: costoMassimoAmmissibile = 0; steps.push(`Tipo non selezionato`);
                 }
-                const spesaAmmissibile=Math.min(costo_totale||0, costoMassimoAmmissibile);
-                const incentivo=0.30*spesaAmmissibile;
-                return { result: incentivo, formula:`Itot = 30% × min(Spesa, Cmax_tipo)`, variables:{Spesa:costo_totale||0, Cmax_tipo:costoMassimoAmmissibile, SpesaAmm:spesaAmmissibile} };
+                const spesa = parseFloat(costo_totale || 0) || 0;
+                const spesaAmmissibile = Math.min(spesa, costoMassimoAmmissibile);
+                const incentivo = 0.30 * spesaAmmissibile;
+                steps.push(`Spesa ammissibile = min(Spesa, Cmax) = min(${spesa.toLocaleString('it-IT')}, ${costoMassimoAmmissibile.toLocaleString('it-IT')}) = ${spesaAmmissibile.toLocaleString('it-IT')}`);
+                steps.push(`Itot = 30% × Spesa ammissibile = 0,30 × ${spesaAmmissibile.toLocaleString('it-IT')} = ${incentivo.toLocaleString('it-IT', {minimumFractionDigits: 2})} €`);
+                return { result: incentivo, formula:`Itot = 30% × min(Spesa, Cmax)`, variables:{Spesa:spesa, Cmax:costoMassimoAmmissibile, SpesaAmm:spesaAmmissibile}, steps };
             }
         },
         'fotovoltaico-accumulo': {

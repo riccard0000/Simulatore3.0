@@ -655,6 +655,19 @@ async function initCalculator() {
                 const isEmpty = value === null || value === undefined || value === '';
                 const isInvalid = input.type === 'number' && (isEmpty || isNaN(value) || value < (input.min || 0));
                 
+                // Regola speciale per infrastrutture-ricarica: obbligatorietà condizionale
+                if (intId === 'infrastrutture-ricarica') {
+                    const tipo = state.inputValues[intId]?.['tipo_infrastruttura'];
+                    const needPunti = tipo === 'Standard monofase (7.4-22kW)' || tipo === 'Standard trifase (7.4-22kW)';
+                    const needPotenza = tipo === 'Media (22-50kW)';
+                    if (input.id === 'numero_punti' && !needPunti) {
+                        return; // non richiesto
+                    }
+                    if (input.id === 'potenza' && !needPotenza) {
+                        return; // non richiesto
+                    }
+                }
+
                 if (isEmpty || isInvalid) {
                     allValid = false;
                     missingFields.push(`${intervention.name}: ${input.name}`);
@@ -1319,19 +1332,25 @@ async function initCalculator() {
         }
 
         if (intId === 'infrastrutture-ricarica') {
-            // Limite su costo_totale in base al tipo (e potenza per 22-50kW)
+            // Limite su costo_totale in base al tipo (numero_punti per standard, potenza per 22-50kW)
             const tipoSel = byId('tipo_infrastruttura');
+            const puntiEl = byId('numero_punti');
             const potenzaEl = byId('potenza');
             const costoTot = byId('costo_totale');
             if (tipoSel && costoTot) {
                 let maxCost;
                 switch (tipoSel.value) {
-                    case 'Standard monofase (7.4-22kW)': maxCost = 2400; break;
-                    case 'Standard trifase (7.4-22kW)': maxCost = 8400; break;
-                    case 'Media (22-50kW)':
-                        {
+                    case 'Standard monofase (7.4-22kW)': {
+                        const n = parseInt(puntiEl?.value || '0');
+                        maxCost = (isFinite(n) ? n : 0) * 2400; break;
+                    }
+                    case 'Standard trifase (7.4-22kW)': {
+                        const n = parseInt(puntiEl?.value || '0');
+                        maxCost = (isFinite(n) ? n : 0) * 8400; break;
+                    }
+                    case 'Media (22-50kW)': {
                             const p = parseFloat(potenzaEl?.value || '0') || 0;
-                            maxCost = p * 1200; // valore da norma
+                            maxCost = p * 1200; // valore da norma (€/kW)
                         }
                         break;
                     case 'Alta (50-100kW)': maxCost = 60000; break;
@@ -1348,13 +1367,18 @@ async function initCalculator() {
                         const val = parseFloat(this.value) || 0;
                         let currentMaxCost;
                         switch (tipoSel.value) {
-                            case 'Standard monofase (7.4-22kW)': currentMaxCost = 2400; break;
-                            case 'Standard trifase (7.4-22kW)': currentMaxCost = 8400; break;
-                            case 'Media (22-50kW)':
-                                {
-                                    const p = parseFloat(potenzaEl?.value || '0') || 0;
-                                    currentMaxCost = p * 1200;
-                                }
+                            case 'Standard monofase (7.4-22kW)': {
+                                const n = parseInt(puntiEl?.value || '0');
+                                currentMaxCost = (isFinite(n) ? n : 0) * 2400; break;
+                            }
+                            case 'Standard trifase (7.4-22kW)': {
+                                const n = parseInt(puntiEl?.value || '0');
+                                currentMaxCost = (isFinite(n) ? n : 0) * 8400; break;
+                            }
+                            case 'Media (22-50kW)': {
+                                const p = parseFloat(potenzaEl?.value || '0') || 0;
+                                currentMaxCost = p * 1200;
+                            }
                                 break;
                             case 'Alta (50-100kW)': currentMaxCost = 60000; break;
                             case 'Oltre 100kW': currentMaxCost = 110000; break;

@@ -20,7 +20,13 @@ const calculatorData = eval(`
 // Configurazioni test da test-runner.html
 const testConfigs = {
     'isolamento-opache': {
-        baseParams: { superficie: 100, costo_specifico: 200, zona_climatica: 'C' },
+        // Modello aggiornato: tabella righe_opache con tipologia, superficie e costo_totale per riga
+        baseParams: { 
+            righe_opache: [
+                { tipologia_struttura: 'parete_esterno', superficie: 100, costo_totale: 20000 }
+            ],
+            zona_climatica: 'C'
+        },
         operators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large'],
         zones: ['A', 'C', 'E', 'F']
     },
@@ -40,6 +46,10 @@ const testConfigs = {
     'illuminazione-led': {
         baseParams: { superficie: 500, costo_specifico: 30, tipo_lampada: 'LED' },
         operators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large']
+    },
+    'infrastrutture-ricarica': {
+        baseParams: { tipo_infrastruttura: 'Standard monofase (7.4-22kW)', numero_punti: 2, costo_totale: 4000 },
+        operators: ['pa', 'private_tertiary_person']
     },
     'pompa-calore': {
         baseParams: { 
@@ -203,10 +213,13 @@ try {
     console.log('🔗 TEST COMBINATO PREMI (Multi-intervento + PMI)');
     console.log('='.repeat(80));
     totalTests++;
-    const selectedInterventions = ['isolamento-opache', 'illuminazione-led'];
+    const selectedInterventions = ['isolamento-opache', 'pompa-calore'];
     const inputsByIntervention = {
-        'isolamento-opache': { superficie: 200, costo_specifico: 250, zona_climatica: 'E' },
-        'illuminazione-led': { superficie: 1500, costo_specifico: 30, tipo_lampada: 'LED' }
+        'isolamento-opache': { 
+            righe_opache: [ { tipologia_struttura: 'parete_esterno', superficie: 200, costo_totale: 50000 } ],
+            zona_climatica: 'E' 
+        },
+        'pompa-calore': { tipo_pompa: 'aria/acqua (≤35kW)', potenza_nominale: 20, scop: 4.5, scop_minimo: 4.0, zona_climatica: 'E' }
     };
     const operatorType = 'private_tertiary_sme';
     const globalPremiums = ['pmi'];
