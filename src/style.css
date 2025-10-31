@@ -508,3 +508,47 @@ input.invalid:focus, select.invalid:focus {
     }
 }
 
+/* Stili per tabella dinamica */
+.table-input-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fafafa;
+}
+
+.dynamic-table {
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dynamic-table th {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.dynamic-table input,
+.dynamic-table select {
+    padding: 6px 8px;
+    font-size: 0.9rem;
+}
+
+.dynamic-table input[readonly] {
+    background: #f0f0f0;
+    cursor: not-allowed;
+}
+
+.dynamic-table button {
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 1.2rem;
+}
+
+.dynamic-table button:hover {
+    background: #d32f2f;
+}
+
