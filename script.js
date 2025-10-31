@@ -117,7 +117,7 @@ async function initCalculator() {
 
     function updateImplementationModeOptions() {
         const selectedSubjectId = state.selectedSubject;
-        implementationModeSelect.innerHTML = ''; // Pulisci le opzioni
+        implementationModeSelect.innerHTML = '<option value="" disabled selected>Seleziona la modalità...</option>'; // Pulisci e aggiungi placeholder
 
         if (!selectedSubjectId) {
             implementationModeGroup.style.display = 'none';
@@ -140,8 +140,8 @@ async function initCalculator() {
                 }
                 implementationModeSelect.appendChild(option);
             });
-            // Imposta il valore di default o il primo disponibile
-            state.selectedMode = implementationModeSelect.value;
+            // NON impostiamo più automaticamente il valore - l'utente deve scegliere esplicitamente
+            state.selectedMode = ''; // Reset a vuoto
         } else {
             implementationModeGroup.style.display = 'none';
         }
