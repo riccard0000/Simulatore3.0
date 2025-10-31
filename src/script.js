@@ -374,6 +374,12 @@ async function initCalculator() {
         resetButton.addEventListener('click', () => {
             location.reload();
         });
+
+        // Event listener per il pulsante stampa
+        const printButton = document.getElementById('print-btn');
+        if (printButton) {
+            printButton.addEventListener('click', printReport);
+        }
     }
 
     function updateBuildingCategoryOptions() {
@@ -1162,4 +1168,81 @@ function downloadText(content, filename, mime){
     const a = document.createElement('a');
     a.href = url; a.download = filename; a.click();
     setTimeout(()=>URL.revokeObjectURL(url), 5000);
+}
+
+// Funzione per stampare il report della simulazione
+function printReport() {
+    // Aggiungi la data corrente al report
+    const resultCard = document.getElementById('result-container');
+    const currentDate = new Date().toLocaleDateString('it-IT', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    resultCard.setAttribute('data-print-date', currentDate);
+    
+    // Espandi tutti i dettagli prima della stampa
+    const allDetailsToggles = document.querySelectorAll('.details-toggle');
+    const detailsPanels = document.querySelectorAll('.details-panel');
+    
+    // Salva lo stato corrente
+    const originalStates = Array.from(detailsPanels).map(panel => panel.style.display);
+    
+    // Espandi tutto
+    detailsPanels.forEach(panel => {
+        panel.style.display = 'block';
+    });
+    
+    // Nascondi i toggle nella stampa
+    allDetailsToggles.forEach(toggle => {
+        toggle.style.display = 'none';
+    });
+    
+    // Aggiungi info sul browser e timestamp al documento
+    const printInfo = document.createElement('div');
+    printInfo.className = 'print-info';
+    printInfo.style.display = 'none';
+    printInfo.innerHTML = `
+        <div style="text-align: center; margin: 20px 0; padding: 20px; border-top: 2px solid #000;">
+            <h3>SIMULAZIONE CONTO TERMICO 3.0</h3>
+            <p><strong>Data simulazione:</strong> ${currentDate}</p>
+            <p><em>Documento generato dal Simulatore Conto Termico 3.0<br>
+            Questo è un calcolo indicativo. Per informazioni ufficiali consultare www.gse.it</em></p>
+        </div>
+    `;
+    
+    // Aggiungi stile per la stampa dell'info
+    printInfo.innerHTML += `
+        <style>
+            @media print {
+                .print-info {
+                    display: block !important;
+                }
+            }
+        </style>
+    `;
+    
+    resultCard.appendChild(printInfo);
+    
+    // Avvia la stampa
+    window.print();
+    
+    // Ripristina lo stato originale dopo la stampa
+    setTimeout(() => {
+        detailsPanels.forEach((panel, index) => {
+            panel.style.display = originalStates[index];
+        });
+        
+        allDetailsToggles.forEach(toggle => {
+            toggle.style.display = '';
+        });
+        
+        // Rimuovi l'elemento info
+        if (printInfo.parentNode) {
+            printInfo.parentNode.removeChild(printInfo);
+        }
+    }, 1000);
 }
