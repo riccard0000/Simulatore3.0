@@ -1,9 +1,9 @@
-/* --- Stile Ispirato a GSE.it --- */
+﻿/* --- Stile Ispirato a GSE.it --- */
 
 :root {
     --gse-blue: #004c8c; /* Blu primario GSE */
     --gse-light-blue: #e8f1f7; /* Blu chiaro per sfondi o dettagli */
-    --gse-accent: #007bff; /* Un blu più brillante per l'interazione */
+    --gse-accent: #007bff; /* Un blu pi├╣ brillante per l'interazione */
     --text-primary: #333333;
     --text-secondary: #555555;
     --background-color: #f5f8fa;
@@ -476,7 +476,7 @@ input.invalid:focus, select.invalid:focus {
         color: #666;
     }
     
-    /* Migliora leggibilità tabelle */
+    /* Migliora leggibilit├á tabelle */
     .vars-table {
         border: 1px solid #000;
     }
@@ -492,7 +492,7 @@ input.invalid:focus, select.invalid:focus {
         border: 1px solid #000;
     }
     
-    /* Formule più evidenti */
+    /* Formule pi├╣ evidenti */
     .formula {
         border-left: 4px solid #000;
         background: #f5f5f5;
@@ -506,5 +506,49 @@ input.invalid:focus, select.invalid:focus {
     .disclaimer {
         page-break-inside: avoid;
     }
+}
+
+/* Stili per tabella dinamica */
+.table-input-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fafafa;
+}
+
+.dynamic-table {
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dynamic-table th {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.dynamic-table input,
+.dynamic-table select {
+    padding: 6px 8px;
+    font-size: 0.9rem;
+}
+
+.dynamic-table input[readonly] {
+    background: #f0f0f0;
+    cursor: not-allowed;
+}
+
+.dynamic-table button {
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 1.2rem;
+}
+
+.dynamic-table button:hover {
+    background: #d32f2f;
 }
 

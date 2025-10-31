@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -19,8 +19,8 @@
             
             <div class="form-group">
                 <label for="subject-type">
-                    <strong>Step 1:</strong> Chi ha la disponibilità dell'immobile?
-                    <span class="tooltip-icon" data-tooltip="Soggetto Ammesso secondo art. 10 del Decreto CT 3.0">ⓘ</span>
+                    <strong>Step 1:</strong> Chi ha la disponibilit├á dell'immobile?
+                    <span class="tooltip-icon" data-tooltip="Soggetto Ammesso secondo art. 10 del Decreto CT 3.0">Ôôÿ</span>
                 </label>
                 <select id="subject-type" name="subject-type">
                     <option value="" disabled selected>Seleziona il soggetto ammesso...</option>
@@ -31,7 +31,7 @@
             <div class="form-group" id="building-category-group" style="display: none;">
                 <label for="building-category">
                     <strong>Step 2:</strong> Categoria catastale dell'immobile:
-                    <span class="tooltip-icon" data-tooltip="La categoria determina gli interventi ammissibili">ⓘ</span>
+                    <span class="tooltip-icon" data-tooltip="La categoria determina gli interventi ammissibili">Ôôÿ</span>
                 </label>
                 <select id="building-category" name="building-category">
                     <option value="" disabled selected>Seleziona la categoria...</option>
@@ -42,15 +42,15 @@
 
             <div class="form-group" id="implementation-mode-group" style="display: none;">
                 <label for="implementation-mode">
-                    <strong>Step 3 (opzionale):</strong> Modalità di realizzazione:
-                    <span class="tooltip-icon" data-tooltip="Chi sostiene materialmente le spese - non influisce sui massimali">ⓘ</span>
+                    <strong>Step 3 (opzionale):</strong> Modalit├á di realizzazione:
+                    <span class="tooltip-icon" data-tooltip="Chi sostiene materialmente le spese - non influisce sui massimali">Ôôÿ</span>
                 </label>
                 <select id="implementation-mode" name="implementation-mode">
-                    <option value="" disabled selected>Seleziona la modalità...</option>
+                    <option value="" disabled selected>Seleziona la modalit├á...</option>
                     <!-- Le opzioni verranno caricate da script.js -->
                 </select>
                 <small class="info-text" style="display: block; margin-top: 8px;">
-                    ℹ️ L'incentivo va al soggetto che sostiene le spese. La modalità non influisce sui massimali.
+                    Ôä╣´©Å L'incentivo va al soggetto che sostiene le spese. La modalit├á non influisce sui massimali.
                 </small>
             </div>
         </div>
@@ -58,7 +58,7 @@
         <div class="card">
             <h2>2. Scelta Interventi</h2>
             <div id="interventions-list">
-                <!-- La lista degli interventi verrà caricata da script.js -->
+                <!-- La lista degli interventi verr├á caricata da script.js -->
             </div>
         </div>
 
@@ -70,9 +70,9 @@
         </div>
 
         <div class="card">
-            <h2>3. Premialità</h2>
+            <h2>3. Premialit├á</h2>
             <div id="premiums-list">
-                <p class="notice">Seleziona gli interventi per visualizzare le premialità applicabili.</p>
+                <p class="notice">Seleziona gli interventi per visualizzare le premialit├á applicabili.</p>
             </div>
         </div>
 
@@ -86,18 +86,14 @@
             <div id="result-amount"></div>
             <div id="result-details"></div>
             <div class="print-actions" style="margin-top: 20px; text-align: center;">
-                <button id="print-btn" class="btn-print">🖨️ Stampa Report</button>
+                <button id="print-btn" class="btn-print">­ƒû¿´©Å Stampa Report</button>
             </div>
         </div>
     </div>
 
     <!-- Caricamento moduli -->
-    <script>
-    // Cache busting con timestamp
-    const timestamp = new Date().getTime();
-    document.write('<script src="data.js?cb=' + timestamp + '"><\/script>');
-    document.write('<script src="script.js?cb=' + timestamp + '"><\/script>');
-    </script>
+    <script src="data.js?v=1.4.0"></script>
+    <script src="script.js?v=1.4.0"></script>
 
 </body>
 </html>
