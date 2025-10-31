@@ -212,6 +212,11 @@ async function initCalculator() {
             } else if (col.type === 'computed' && col.compute) {
                 const rowData = state.inputValues[interventionId][inputId][rowIndex] || {};
                 cellInput.value = col.compute(rowData);
+            } else if (col.type === 'select') {
+                // Inizializza subito lo stato con il valore di default della select,
+                // così la riga risulta completa anche senza interazione dell'utente.
+                const defaultValue = cellInput.value;
+                state.inputValues[interventionId][inputId][rowIndex][col.id] = defaultValue;
             }
             
             // Event listener per aggiornare lo stato e i campi computed
