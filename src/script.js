@@ -796,8 +796,17 @@ async function initCalculator() {
                     inputEl = document.createElement('select');
                     input.options.forEach(opt => {
                         const option = document.createElement('option');
-                        option.value = opt;
-                        option.textContent = opt;
+                        // Supporta sia stringhe semplici che oggetti {value, label}
+                        if (typeof opt === 'string') {
+                            option.value = opt;
+                            option.textContent = opt;
+                        } else {
+                            option.value = opt.value;
+                            option.textContent = opt.label || opt.value;
+                            if (opt.cmax) {
+                                option.dataset.cmax = opt.cmax;
+                            }
+                        }
                         inputEl.appendChild(option);
                     });
                 } else if (input.type === 'computed') {
