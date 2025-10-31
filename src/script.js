@@ -33,7 +33,7 @@ async function initCalculator() {
         selectedSubject: '', // Step 1
         selectedBuilding: '', // Step 2
         buildingSubcategory: '', // Sottocategoria terziario (school/hospital/prison)
-        selectedMode: 'direct', // Step 3
+        selectedMode: '', // Step 3 - inizialmente vuoto, richiede selezione esplicita
         selectedOperator: '', // operatorType calcolato dalla matrice
         selectedInterventions: [],
         selectedPremiums: [],
@@ -68,7 +68,7 @@ async function initCalculator() {
     }
 
     function populateImplementationModes() {
-        implementationModeSelect.innerHTML = '';
+        implementationModeSelect.innerHTML = '<option value="" disabled selected>Seleziona la modalità...</option>';
         
         calculatorData.implementationModes.forEach(mode => {
             const option = document.createElement('option');
