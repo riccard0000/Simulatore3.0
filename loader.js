@@ -1,4 +1,4 @@
-﻿/**
+/**
  * WASM Loader - Simulatore Conto Termico 3.0
  * 
  * Questo file carica il modulo WebAssembly contenente le formule di calcolo
@@ -42,7 +42,7 @@ async function loadWASM() {
         wasmModule = module.instance;
         wasmExports = module.instance.exports;
         
-        console.log('Ô£à WASM caricato con successo');
+        console.log('✅ WASM caricato con successo');
         console.log('Funzioni disponibili:', Object.keys(wasmExports));
         
         // Verifica se ha le funzioni di calcolo necessarie
@@ -50,7 +50,7 @@ async function loadWASM() {
                                  wasmExports.calcolaIsolamento;
         
         if (!hasCalcFunctions) {
-            console.warn('ÔÜá´©Å  WASM non contiene funzioni di calcolo, usando JavaScript');
+            console.warn('⚠️  WASM non contiene funzioni di calcolo, usando JavaScript');
             // NON creare window.WASMCalculator
             window.WASMCalculator = null;
             return false;
@@ -107,7 +107,7 @@ async function loadWASM() {
         
         return true;
     } catch (error) {
-        console.error('ÔØî Errore caricamento WASM:', error);
+        console.error('❌ Errore caricamento WASM:', error);
         window.WASMCalculator = null;
         return false;
     }

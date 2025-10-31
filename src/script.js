@@ -147,6 +147,176 @@ async function initCalculator() {
         }
     }
 
+    // Funzione per aggiungere una riga alla tabella dinamica
+    function addTableRow(interventionId, inputId, columns, tbody) {
+        const rowIndex = tbody.children.length;
+        const tr = document.createElement('tr');
+        tr.dataset.rowIndex = rowIndex;
+        
+        // Inizializza oggetto riga se non esiste
+        if (!state.inputValues[interventionId][inputId]) {
+            state.inputValues[interventionId][inputId] = [];
+        }
+        if (!state.inputValues[interventionId][inputId][rowIndex]) {
+            state.inputValues[interventionId][inputId][rowIndex] = {};
+        }
+        
+        columns.forEach((col, colIndex) => {
+            const td = document.createElement('td');
+            td.style.border = '1px solid #ddd';
+            td.style.padding = '8px';
+            
+            let cellInput;
+            
+            if (col.type === 'select') {
+                cellInput = document.createElement('select');
+                cellInput.style.width = '100%';
+                col.options.forEach(opt => {
+                    const option = document.createElement('option');
+                    if (typeof opt === 'string') {
+                        option.value = opt;
+                        option.textContent = opt;
+                    } else {
+                        option.value = opt.value;
+                        option.textContent = opt.label || opt.value;
+                        if (opt.cmax) {
+                            option.dataset.cmax = opt.cmax;
+                        }
+                    }
+                    cellInput.appendChild(option);
+                });
+            } else if (col.type === 'computed') {
+                cellInput = document.createElement('input');
+                cellInput.type = 'text';
+                cellInput.readOnly = true;
+                cellInput.style.width = '100%';
+                cellInput.style.backgroundColor = '#f0f0f0';
+                cellInput.style.cursor = 'not-allowed';
+            } else {
+                cellInput = document.createElement('input');
+                cellInput.type = col.type;
+                cellInput.style.width = '100%';
+                if (col.min !== undefined) cellInput.min = col.min;
+                if (col.max !== undefined) cellInput.max = col.max;
+            }
+            
+            cellInput.dataset.intervention = interventionId;
+            cellInput.dataset.inputId = inputId;
+            cellInput.dataset.rowIndex = rowIndex;
+            cellInput.dataset.columnId = col.id;
+            
+            // Ripristina valore esistente
+            const savedValue = state.inputValues[interventionId][inputId][rowIndex]?.[col.id];
+            if (savedValue !== undefined && savedValue !== null) {
+                cellInput.value = savedValue;
+            } else if (col.type === 'computed' && col.compute) {
+                const rowData = state.inputValues[interventionId][inputId][rowIndex] || {};
+                cellInput.value = col.compute(rowData);
+            }
+            
+            // Event listener per aggiornare lo stato e i campi computed
+            if (col.type !== 'computed') {
+                cellInput.addEventListener('change', (e) => {
+                    const row = parseInt(e.target.dataset.rowIndex);
+                    const colId = e.target.dataset.columnId;
+                    
+                    // Converti in numero se è un input number
+                    let value = e.target.value;
+                    if (e.target.type === 'number') {
+                        value = parseFloat(value) || 0;
+                    }
+                    
+                    state.inputValues[interventionId][inputId][row][colId] = value;
+                    
+                    // Aggiorna campi computed nella stessa riga
+                    updateTableRowComputed(interventionId, inputId, row, columns, tr);
+                    
+                    // Trigger recalcolo generale
+                    handleInputChange(e);
+                });
+                
+                cellInput.addEventListener('keyup', (e) => {
+                    const row = parseInt(e.target.dataset.rowIndex);
+                    const colId = e.target.dataset.columnId;
+                    
+                    // Converti in numero se è un input number
+                    let value = e.target.value;
+                    if (e.target.type === 'number') {
+                        value = parseFloat(value) || 0;
+                    }
+                    
+                    state.inputValues[interventionId][inputId][row][colId] = value;
+                    
+                    // Aggiorna campi computed nella stessa riga
+                    updateTableRowComputed(interventionId, inputId, row, columns, tr);
+                });
+            }
+            
+            td.appendChild(cellInput);
+            tr.appendChild(td);
+        });
+        
+        // Colonna azioni (elimina)
+        const tdActions = document.createElement('td');
+        tdActions.style.border = '1px solid #ddd';
+        tdActions.style.padding = '8px';
+        tdActions.style.textAlign = 'center';
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = '🗑️';
+        deleteBtn.title = 'Elimina riga';
+        deleteBtn.style.padding = '4px 8px';
+        deleteBtn.style.cursor = 'pointer';
+        deleteBtn.addEventListener('click', () => {
+            // Rimuovi la riga dal DOM
+            tr.remove();
+            
+            // Rimuovi la riga dall'array state
+            const rowIdx = parseInt(tr.dataset.rowIndex);
+            state.inputValues[interventionId][inputId].splice(rowIdx, 1);
+            
+            // Ri-indicizza le righe rimanenti
+            Array.from(tbody.children).forEach((row, newIndex) => {
+                row.dataset.rowIndex = newIndex;
+                row.querySelectorAll('input, select').forEach(input => {
+                    input.dataset.rowIndex = newIndex;
+                });
+            });
+            
+            // Trigger recalcolo
+            handleInputChange();
+        });
+        
+        tdActions.appendChild(deleteBtn);
+        tr.appendChild(tdActions);
+        
+        tbody.appendChild(tr);
+        
+        // Aggiorna computed fields della riga appena aggiunta
+        updateTableRowComputed(interventionId, inputId, rowIndex, columns, tr);
+    }
+
+    // Funzione per aggiornare i campi computed di una riga
+    function updateTableRowComputed(interventionId, inputId, rowIndex, columns, tr) {
+        const rowData = state.inputValues[interventionId][inputId][rowIndex] || {};
+        
+        console.log('updateTableRowComputed called:', { interventionId, inputId, rowIndex, rowData });
+        
+        columns.forEach((col, colIndex) => {
+            if (col.type === 'computed' && col.compute) {
+                const computedValue = col.compute(rowData);
+                console.log(`Computing ${col.id}:`, computedValue, 'from rowData:', rowData);
+                const cellInput = tr.cells[colIndex].querySelector('input');
+                if (cellInput) {
+                    cellInput.value = computedValue;
+                    // Aggiorna anche lo state
+                    state.inputValues[interventionId][inputId][rowIndex][col.id] = computedValue;
+                }
+            }
+        });
+    }
+
     function renderInterventions() {
         interventionsList.innerHTML = '';
         state.selectedInterventions = [];
@@ -792,7 +962,83 @@ async function initCalculator() {
                 inputDiv.appendChild(label);
 
                 let inputEl;
-                if (input.type === 'select') {
+                if (input.type === 'table') {
+                    // Render tabella dinamica
+                    const tableContainer = document.createElement('div');
+                    tableContainer.className = 'table-input-container';
+                    tableContainer.style.marginTop = '12px';
+                    
+                    const table = document.createElement('table');
+                    table.className = 'dynamic-table';
+                    table.style.width = '100%';
+                    table.style.borderCollapse = 'collapse';
+                    table.style.marginBottom = '12px';
+                    
+                    // Header
+                    const thead = document.createElement('thead');
+                    const headerRow = document.createElement('tr');
+                    input.columns.forEach(col => {
+                        const th = document.createElement('th');
+                        th.textContent = col.name;
+                        th.style.border = '1px solid #ddd';
+                        th.style.padding = '8px';
+                        th.style.background = '#f5f5f5';
+                        th.style.textAlign = 'left';
+                        headerRow.appendChild(th);
+                    });
+                    // Colonna azioni
+                    const thActions = document.createElement('th');
+                    thActions.textContent = 'Azioni';
+                    thActions.style.border = '1px solid #ddd';
+                    thActions.style.padding = '8px';
+                    thActions.style.background = '#f5f5f5';
+                    thActions.style.width = '80px';
+                    headerRow.appendChild(thActions);
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+                    
+                    // Body
+                    const tbody = document.createElement('tbody');
+                    tbody.id = `tbody-${intId}-${input.id}`;
+                    table.appendChild(tbody);
+                    
+                    tableContainer.appendChild(table);
+                    
+                    // Pulsante aggiungi riga
+                    const addButton = document.createElement('button');
+                    addButton.type = 'button';
+                    addButton.textContent = '+ Aggiungi tipologia';
+                    addButton.className = 'button primary';
+                    addButton.style.marginTop = '8px';
+                    addButton.addEventListener('click', () => {
+                        addTableRow(intId, input.id, input.columns, tbody);
+                    });
+                    tableContainer.appendChild(addButton);
+                    
+                    inputDiv.appendChild(tableContainer);
+                    
+                    // Inizializza array vuoto se non esiste
+                    if (!state.inputValues[intId][input.id]) {
+                        state.inputValues[intId][input.id] = [];
+                    }
+                    
+                    // Ripristina righe esistenti
+                    const existingRows = state.inputValues[intId][input.id];
+                    if (existingRows && existingRows.length > 0) {
+                        existingRows.forEach(() => {
+                            addTableRow(intId, input.id, input.columns, tbody);
+                        });
+                    } else {
+                        // Aggiungi una riga iniziale
+                        addTableRow(intId, input.id, input.columns, tbody);
+                    }
+                    
+                    groupDiv.appendChild(inputDiv);
+                    // Per il tipo table, il rendering è completo, saltiamo il resto
+                } else {
+                    // Gestione input normali (select, computed, text, number, ecc.)
+                    let inputEl;
+                    if (input.type === 'select') {
                     inputEl = document.createElement('select');
                     input.options.forEach(opt => {
                         const option = document.createElement('option');
@@ -857,6 +1103,7 @@ async function initCalculator() {
                     // Aggiungi classe per campi obbligatori
                     inputEl.classList.add('required-field');
                 }
+                } // fine else (gestione input normali)
             });
 
             // Sezione premi per-intervento
@@ -1128,7 +1375,16 @@ async function initCalculator() {
     }
     
     function handleInputChange(e) {
-        const { intervention, inputId } = e.target.dataset;
+        const { intervention, inputId, rowIndex, columnId } = e.target.dataset || {};
+
+        // Se l'evento proviene da una cella di tabella (input con rowIndex/columnId),
+        // lo stato è già stato aggiornato nei listener della tabella.
+        // Evitiamo di sovrascrivere l'intero array (es. righe_opache) con un valore scalare.
+        if (rowIndex !== undefined && columnId) {
+            // Aggiorna solo validazioni o altri effetti collaterali globali.
+            validateRequiredFields();
+            return;
+        }
         if (e.target.name === 'premium-int') {
             const premId = e.target.dataset.premiumId;
             const checked = e.target.checked;

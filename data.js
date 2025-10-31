@@ -1,19 +1,19 @@
-﻿// Questo file contiene i dati di configurazione per il calcolatore.
-// Modificando questo file ├¿ possibile aggiornare le opzioni, i parametri
+// Questo file contiene i dati di configurazione per il calcolatore.
+// Modificando questo file è possibile aggiornare le opzioni, i parametri
 // e le logiche di calcolo senza toccare il codice principale.
 
 const calculatorData = {
-    // STEP 1: Soggetti Ammessi (chi ha disponibilit├á dell'immobile)
+    // STEP 1: Soggetti Ammessi (chi ha disponibilità dell'immobile)
     subjectTypes: [
         {
             id: 'pa',
             name: 'Pubblica Amministrazione',
-            description: 'PA ex D.Lgs 165/2001, enti pubblici, societ├á in house, ex IACP, concessionari'
+            description: 'PA ex D.Lgs 165/2001, enti pubblici, società in house, ex IACP, concessionari'
         },
         {
             id: 'ets_non_economic',
             name: 'ETS non economico',
-            description: 'Enti del Terzo Settore iscritti al RUNTS che NON svolgono attivit├á economica'
+            description: 'Enti del Terzo Settore iscritti al RUNTS che NON svolgono attività economica'
         },
         {
             id: 'person',
@@ -33,7 +33,7 @@ const calculatorData = {
         {
             id: 'ets_economic',
             name: 'ETS economico',
-            description: 'Enti del Terzo Settore iscritti al RUNTS che svolgono attivit├á economica'
+            description: 'Enti del Terzo Settore iscritti al RUNTS che svolgono attività economica'
         }
     ],
 
@@ -44,7 +44,7 @@ const calculatorData = {
             name: 'Residenziale',
             description: 'Gruppo A (escluso A/8, A/9, A/10)',
             allowedSubjects: ['pa', 'ets_non_economic', 'person', 'sme', 'large_company', 'ets_economic'],
-            note: 'PA/ETS: Titolo II solo su edifici di propriet├á pubblica (es. ex IACP/ATER)'
+            note: 'PA/ETS: Titolo II solo su edifici di proprietà pubblica (es. ex IACP/ATER)'
         },
         {
             id: 'tertiary',
@@ -55,14 +55,14 @@ const calculatorData = {
                 {
                     id: 'tertiary_generic',
                     name: 'Terziario generico',
-                    description: 'Uffici, negozi, attivit├á commerciali',
+                    description: 'Uffici, negozi, attività commerciali',
                     allowedSubjects: ['pa', 'ets_non_economic', 'person', 'sme', 'large_company', 'ets_economic'],
                     art48ter: false
                 },
                 {
                     id: 'tertiary_school',
                     name: 'Scuola',
-                    description: 'Edificio pubblico adibito a uso scolastico (non universit├á)',
+                    description: 'Edificio pubblico adibito a uso scolastico (non università)',
                     allowedSubjects: ['pa', 'ets_non_economic'],
                     art48ter: true,
                     note: 'Art. 48-ter: incentivo al 100% della spesa ammissibile'
@@ -87,7 +87,7 @@ const calculatorData = {
         }
     ],
 
-    // STEP 3 (opzionale): Modalit├á di realizzazione
+    // STEP 3 (opzionale): Modalità di realizzazione
     implementationModes: [
         {
             id: 'direct',
@@ -100,12 +100,12 @@ const calculatorData = {
             name: 'Tramite ESCO/Contratto EPC',
             description: 'Energy Service Company che sostiene le spese per conto del soggetto ammesso.',
             allowedSubjects: ['pa', 'ets_non_economic', 'person', 'sme', 'large_company', 'ets_economic'], // Tutti, ma con condizioni
-            note: 'Per i privati in ambito RESIDENZIALE, ├¿ ammessa solo per interventi Titolo III con P > 70 kW o S > 20 m┬▓. Altrimenti, si usa il mandato all\'incasso.'
+            note: 'Per i privati in ambito RESIDENZIALE, è ammessa solo per interventi Titolo III con P > 70 kW o S > 20 m². Altrimenti, si usa il mandato all\'incasso.'
         },
         {
             id: 'energy_community',
-            name: 'Tramite Comunit├á Energetica',
-            description: 'Configurazione di autoconsumo collettivo o comunit├á energetica rinnovabile (CER).',
+            name: 'Tramite Comunità Energetica',
+            description: 'Configurazione di autoconsumo collettivo o comunità energetica rinnovabile (CER).',
             allowedSubjects: ['pa', 'ets_non_economic', 'person', 'sme', 'large_company', 'ets_economic'] // Tutti
         },
         {
@@ -116,8 +116,8 @@ const calculatorData = {
         }
     ],
 
-    // Matrice di compatibilit├á: soggetto + categoria ÔåÆ operatorType interno (per calcoli)
-    // Questo mantiene la compatibilit├á con la logica esistente
+    // Matrice di compatibilità: soggetto + categoria → operatorType interno (per calcoli)
+    // Questo mantiene la compatibilità con la logica esistente
     operatorMatrix: {
         'pa_tertiary': {
             operatorTypeId: 'pa',
@@ -158,8 +158,8 @@ const calculatorData = {
             maxIncentiveRate: 1.0,
             defaultRate: 0.65,
             allowedInterventions: 'all_titolo2_and_3',
-            requiresPublicOwnership: true, // Titolo II richiede propriet├á pubblica (es. ex IACP)
-            note: 'Titolo II ammesso solo per edifici di propriet├á pubblica (es. ex IACP/ATER su edilizia sociale)'
+            requiresPublicOwnership: true, // Titolo II richiede proprietà pubblica (es. ex IACP)
+            note: 'Titolo II ammesso solo per edifici di proprietà pubblica (es. ex IACP/ATER su edilizia sociale)'
         },
         'ets_non_economic_tertiary': {
             operatorTypeId: 'pa',
@@ -193,8 +193,8 @@ const calculatorData = {
             maxIncentiveRate: 1.0,
             defaultRate: 0.65,
             allowedInterventions: 'all_titolo2_and_3',
-            requiresPublicOwnership: true, // Titolo II richiede propriet├á pubblica
-            note: 'Titolo II ammesso solo per edifici di propriet├á pubblica (equiparati a PA)'
+            requiresPublicOwnership: true, // Titolo II richiede proprietà pubblica
+            note: 'Titolo II ammesso solo per edifici di proprietà pubblica (equiparati a PA)'
         },
         'person_residential': {
             operatorTypeId: 'private_residential',
@@ -262,34 +262,34 @@ const calculatorData = {
         }
     },
 
-    // Campi aggiuntivi specifici per soggetto e modalit├á di realizzazione
+    // Campi aggiuntivi specifici per soggetto e modalità di realizzazione
     // NOTA: La maggiorazione per comuni sotto 15.000 abitanti si applica SOLO quando:
-    // 1. Il soggetto ├¿ un Comune (non altra PA)
-    // 2. Modalit├á di realizzazione: Intervento Diretto
-    // 3. L'edificio ├¿ di propriet├á E utilizzato dal Comune
+    // 1. Il soggetto è un Comune (non altra PA)
+    // 2. Modalità di realizzazione: Intervento Diretto
+    // 3. L'edificio è di proprietà E utilizzato dal Comune
     // Riferimento: Regole Applicative CT 3.0, paragrafo 586
     subjectSpecificFields: {
-        // Questi campi non sono pi├╣ utilizzati qui, spostati in implementationModeFields
+        // Questi campi non sono più utilizzati qui, spostati in implementationModeFields
     },
 
-    // Campi specifici che compaiono dopo la selezione della modalit├á di realizzazione
+    // Campi specifici che compaiono dopo la selezione della modalità di realizzazione
     implementationModeFields: {
         // Solo per PA + Intervento Diretto
         pa_direct: [
             {
                 id: 'is_comune',
-                name: 'Il soggetto richiedente ├¿ un Comune?',
+                name: 'Il soggetto richiedente è un Comune?',
                 type: 'checkbox',
-                help: 'Seleziona se sei un Comune (non altra PA come Regione, Provincia, ASL, Universit├á, etc.)',
+                help: 'Seleziona se sei un Comune (non altra PA come Regione, Provincia, ASL, Università, etc.)',
                 optional: false,
                 affects_incentive: false,
                 shows: ['is_edificio_comunale'] // Mostra il campo successivo solo se checked
             },
             {
                 id: 'is_edificio_comunale',
-                name: 'L\'edificio ├¿ di propriet├á del Comune ed ├¿ utilizzato dallo stesso Comune?',
+                name: 'L\'edificio è di proprietà del Comune ed è utilizzato dallo stesso Comune?',
                 type: 'checkbox',
-                help: 'Entrambe le condizioni devono essere vere: propriet├á comunale E utilizzo da parte del Comune',
+                help: 'Entrambe le condizioni devono essere vere: proprietà comunale E utilizzo da parte del Comune',
                 optional: true,
                 affects_incentive: false,
                 visible_if: { field: 'is_comune', value: true },
@@ -299,7 +299,7 @@ const calculatorData = {
                 id: 'is_piccolo_comune',
                 name: 'Il Comune ha popolazione inferiore a 15.000 abitanti?',
                 type: 'checkbox',
-                help: 'Se S├î, si applica automaticamente l\'incentivo al 100% della spesa ammissibile. Dovrai attestare questa condizione in fase di richiesta al GSE.',
+                help: 'Se SÌ, si applica automaticamente l\'incentivo al 100% della spesa ammissibile. Dovrai attestare questa condizione in fase di richiesta al GSE.',
                 optional: true,
                 affects_incentive: true,
                 visible_if: { field: 'is_edificio_comunale', value: true }
@@ -311,31 +311,31 @@ const calculatorData = {
     regulatoryNotes: {
         pa_residential_titolo2: {
             title: 'PA/ETS su edifici residenziali - Interventi Titolo II',
-            text: 'Gli interventi di efficienza energetica (Titolo II) su edifici residenziali sono ammessi per PA e ETS non economici SOLO quando l\'edificio ├¿ di propriet├á pubblica. Esempio: ex IACP/ATER su edilizia sociale. Riferimento: Paragrafo 12.10.4 delle Regole Applicative.',
+            text: 'Gli interventi di efficienza energetica (Titolo II) su edifici residenziali sono ammessi per PA e ETS non economici SOLO quando l\'edificio è di proprietà pubblica. Esempio: ex IACP/ATER su edilizia sociale. Riferimento: Paragrafo 12.10.4 delle Regole Applicative.',
             severity: 'warning',
             applies_to: ['pa_residential', 'ets_non_economic_residential']
         },
         private_residential_restrictions: {
             title: 'Soggetti Privati su edifici residenziali',
-            text: 'I soggetti privati (persone fisiche, condomini, imprese, ETS economici) su edifici residenziali possono accedere SOLO agli interventi del Titolo III (fonti rinnovabili). Gli interventi del Titolo II (efficienza energetica) sono esclusi. Riferimento: Tabella ammissibilit├á, righe 335-385 Regole Applicative.',
+            text: 'I soggetti privati (persone fisiche, condomini, imprese, ETS economici) su edifici residenziali possono accedere SOLO agli interventi del Titolo III (fonti rinnovabili). Gli interventi del Titolo II (efficienza energetica) sono esclusi. Riferimento: Tabella ammissibilità, righe 335-385 Regole Applicative.',
             severity: 'info',
             applies_to: ['person_residential', 'sme_residential', 'large_company_residential', 'ets_economic_residential']
         },
         public_buildings_special: {
             title: 'Edifici pubblici speciali (scuole, ospedali)',
-            text: 'Per interventi realizzati su edifici pubblici adibiti a uso scolastico, strutture ospedaliere e sanitarie del SSN, l\'incentivo ├¿ al 100% delle spese ammissibili. Riferimento: Art. 48-ter D.L. 104/2020 - Paragrafo 12.11 Regole Applicative.',
+            text: 'Per interventi realizzati su edifici pubblici adibiti a uso scolastico, strutture ospedaliere e sanitarie del SSN, l\'incentivo è al 100% delle spese ammissibili. Riferimento: Art. 48-ter D.L. 104/2020 - Paragrafo 12.11 Regole Applicative.',
             severity: 'info',
             applies_to: ['pa_tertiary', 'pa_residential', 'ets_non_economic_tertiary', 'ets_non_economic_residential']
         },
         esco_residential_thresholds: {
             title: 'ESCO su edifici residenziali - Soglie minime',
-            text: 'In ambito residenziale, l\'utilizzo di ESCO tramite contratti EPC/Servizio Energia richiede soglie minime: ÔëÑ70 kW per impianti climatizzazione, ÔëÑ20 m┬▓ per solare termico. Sotto tali soglie: solo mandato irrevocabile all\'incasso. Riferimento: Paragrafo 3.5 Regole Applicative.',
+            text: 'In ambito residenziale, l\'utilizzo di ESCO tramite contratti EPC/Servizio Energia richiede soglie minime: ≥70 kW per impianti climatizzazione, ≥20 m² per solare termico. Sotto tali soglie: solo mandato irrevocabile all\'incasso. Riferimento: Paragrafo 3.5 Regole Applicative.',
             severity: 'info',
             applies_to: ['person_residential', 'sme_residential', 'large_company_residential']
         }
     },
 
-    // Manteniamo operatorTypes per retrocompatibilit├á con i test
+    // Manteniamo operatorTypes per retrocompatibilità con i test
     operatorTypes: [
         {
             id: 'pa',
@@ -412,19 +412,19 @@ const calculatorData = {
                         },
                         {
                             id: 'superficie',
-                            name: 'Superficie (m┬▓)',
+                            name: 'Superficie (m²)',
                             type: 'number',
                             min: 0
                         },
                         {
                             id: 'costo_totale',
-                            name: 'Costo totale (Ôé¼)',
+                            name: 'Costo totale (€)',
                             type: 'number',
                             min: 0
                         },
                         {
                             id: 'costo_specifico',
-                            name: 'Costo specifico (Ôé¼/m┬▓)',
+                            name: 'Costo specifico (€/m²)',
                             type: 'computed',
                             compute: (riga) => {
                                 if (!riga.costo_totale || !riga.superficie) return '0.00';
@@ -432,7 +432,7 @@ const calculatorData = {
                             }
                         }
                     ],
-                    help: 'Inserisci una riga per ogni tipologia di struttura opaca isolata. Puoi aggiungere pi├╣ tipologie.'
+                    help: 'Inserisci una riga per ogni tipologia di struttura opaca isolata. Puoi aggiungere più tipologie.'
                 },
                 { 
                     id: 'zona_climatica', 
@@ -501,11 +501,11 @@ const calculatorData = {
                     
                     // Log per debug
                     if (costo_specifico > cmax) {
-                        console.warn(`ÔÜá´©Å  Riga ${tipologiaData?.label}: Costo specifico (${costo_specifico.toFixed(2)} Ôé¼/m┬▓) supera Cmax (${cmax} Ôé¼/m┬▓)`);
+                        console.warn(`⚠️  Riga ${tipologiaData?.label}: Costo specifico (${costo_specifico.toFixed(2)} €/m²) supera Cmax (${cmax} €/m²)`);
                     }
                 });
                 
-                // Tetto massimo Imas = 1.000.000 Ôé¼
+                // Tetto massimo Imas = 1.000.000 €
                 const tettoMassimo = 1000000;
                 return Math.min(incentivoTotale, tettoMassimo);
             },
@@ -578,26 +578,26 @@ const calculatorData = {
                     incentivoTotale += incentivoRiga;
                     
                     steps.push(`Riga ${index + 1}: ${tipologiaLabel}`);
-                    steps.push(`  Superficie: ${superficie.toFixed(2)} m┬▓`);
-                    steps.push(`  Costo totale: ${costo_totale.toLocaleString('it-IT')} Ôé¼`);
-                    steps.push(`  C = ${costo_totale.toLocaleString('it-IT')} / ${superficie.toFixed(2)} = ${costo_specifico.toFixed(2)} Ôé¼/m┬▓`);
+                    steps.push(`  Superficie: ${superficie.toFixed(2)} m²`);
+                    steps.push(`  Costo totale: ${costo_totale.toLocaleString('it-IT')} €`);
+                    steps.push(`  C = ${costo_totale.toLocaleString('it-IT')} / ${superficie.toFixed(2)} = ${costo_specifico.toFixed(2)} €/m²`);
                     steps.push(superaMassimale 
-                        ? `  ÔÜá´©Å  C supera Cmax! Uso Cmax=${cmax} Ôé¼/m┬▓` 
-                        : `  Ô£ô C (${costo_specifico.toFixed(2)}) Ôëñ Cmax (${cmax})`
+                        ? `  ⚠️  C supera Cmax! Uso Cmax=${cmax} €/m²` 
+                        : `  ✓ C (${costo_specifico.toFixed(2)}) ≤ Cmax (${cmax})`
                     );
-                    steps.push(`  Incentivo riga = ${percentuale.toFixed(2)} ├ù ${costoEffettivo.toFixed(2)} ├ù ${superficie.toFixed(2)}${ue > 1 ? ' ├ù 1.10' : ''} = ${incentivoRiga.toLocaleString('it-IT', {minimumFractionDigits: 2})} Ôé¼`);
+                    steps.push(`  Incentivo riga = ${percentuale.toFixed(2)} × ${costoEffettivo.toFixed(2)} × ${superficie.toFixed(2)}${ue > 1 ? ' × 1.10' : ''} = ${incentivoRiga.toLocaleString('it-IT', {minimumFractionDigits: 2})} €`);
                     steps.push(`---`);
                 });
                 
                 const imas = 1000000;
                 const finale = Math.min(incentivoTotale, imas);
                 
-                steps.push(`Totale = ${incentivoTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})} Ôé¼`);
-                steps.push(`Finale = min(${incentivoTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}, ${imas.toLocaleString('it-IT')}) = ${finale.toLocaleString('it-IT', {minimumFractionDigits: 2})} Ôé¼`);
+                steps.push(`Totale = ${incentivoTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})} €`);
+                steps.push(`Finale = min(${incentivoTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}, ${imas.toLocaleString('it-IT')}) = ${finale.toLocaleString('it-IT', {minimumFractionDigits: 2})} €`);
                 
                 return {
                     result: finale,
-                    formula: `Itot = ╬ú [p ├ù min(Ci, Cmax,i) ├ù Sint,i]${ue > 1 ? ' ├ù 1.10 (UE)' : ''}`,
+                    formula: `Itot = Σ [p × min(Ci, Cmax,i) × Sint,i]${ue > 1 ? ' × 1.10 (UE)' : ''}`,
                     variables: {
                         NumeroRighe: righe_opache.length,
                         p: percentuale,
@@ -617,15 +617,15 @@ const calculatorData = {
                 allowedOperators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large'],
                 restrictionNote: 'SOLO per PA/ETS non economici e Soggetti Privati su edifici TERZIARIO. NO ambito residenziale.',
             inputs: [
-                { id: 'superficie', name: 'Superficie infissi Sint (m┬▓)', type: 'number', min: 0 },
-                { id: 'costo_specifico', name: 'Costo specifico C (Ôé¼/m┬▓)', type: 'number', min: 0 },
+                { id: 'superficie', name: 'Superficie infissi Sint (m²)', type: 'number', min: 0 },
+                { id: 'costo_specifico', name: 'Costo specifico C (€/m²)', type: 'number', min: 0 },
                 { id: 'zona_climatica', name: 'Zona climatica', type: 'select', options: ['A', 'B', 'C', 'D', 'E', 'F'] }
             ],
             calculate: (params, operatorType) => {
                 const { superficie, costo_specifico, zona_climatica } = params;
                 if (!superficie || !costo_specifico) return 0;
                 
-                // Cmax = 700 Ôé¼/m┬▓ per zone A,B,C o 800 Ôé¼/m┬▓ per zone D,E,F
+                // Cmax = 700 €/m² per zone A,B,C o 800 €/m² per zone D,E,F
                 const cmaxInfissi = (zona_climatica === 'D' || zona_climatica === 'E' || zona_climatica === 'F') ? 800 : 700;
                 const costoEffettivo = Math.min(costo_specifico, cmaxInfissi);
                 
@@ -643,7 +643,7 @@ const calculatorData = {
                 const ueMultiplier = params?.premiums?.['prodotti-ue'] ? 1.10 : 1.0;
                 incentivo *= ueMultiplier;
                 
-                // Imas = 500.000 Ôé¼
+                // Imas = 500.000 €
                 const tettoMassimo = 500000;
                 return Math.min(incentivo, tettoMassimo);
             },
@@ -661,13 +661,13 @@ const calculatorData = {
                 const finale = Math.min(conUE, imas);
                 return {
                     result: finale,
-                    formula: `Itot = p ├ù min(C, ${cmaxInfissi}) ├ù Sint${ue>1?' ├ù 1.10 (prodotti UE)':''}; Imas=${imas.toLocaleString('it-IT')}Ôé¼`,
+                    formula: `Itot = p × min(C, ${cmaxInfissi}) × Sint${ue>1?' × 1.10 (prodotti UE)':''}; Imas=${imas.toLocaleString('it-IT')}€`,
                     variables: { p: percentuale, C: costo_specifico || 0, Ceff: costoEffettivo, Sint: superficie || 0, UE: ue>1, Imas: imas },
                     steps: [
                         `p=${percentuale.toFixed(2)}`,
                         `Ceff=min(${(costo_specifico||0).toFixed(2)}, ${cmaxInfissi})=${costoEffettivo.toFixed(2)}`,
-                        `Base=${percentuale.toFixed(2)}├ù${costoEffettivo.toFixed(2)}├ù${(superficie||0).toFixed(2)}=${base.toFixed(2)}`,
-                        ue>1?`UE: ${base.toFixed(2)}├ù1.10=${conUE.toFixed(2)}`:`UE: non applicata`,
+                        `Base=${percentuale.toFixed(2)}×${costoEffettivo.toFixed(2)}×${(superficie||0).toFixed(2)}=${base.toFixed(2)}`,
+                        ue>1?`UE: ${base.toFixed(2)}×1.10=${conUE.toFixed(2)}`:`UE: non applicata`,
                         `Finale=min(${conUE.toFixed(2)}, ${imas})=${finale.toFixed(2)}`
                     ]
                 };
@@ -680,8 +680,8 @@ const calculatorData = {
                 allowedOperators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large'],
                 restrictionNote: 'SOLO per PA/ETS non economici e Soggetti Privati su edifici TERZIARIO. NO ambito residenziale.',
             inputs: [
-                { id: 'superficie', name: 'Superficie schermata Sint (m┬▓)', type: 'number', min: 0 },
-                { id: 'costo_specifico', name: 'Costo specifico C (Ôé¼/m┬▓)', type: 'number', min: 0 },
+                { id: 'superficie', name: 'Superficie schermata Sint (m²)', type: 'number', min: 0 },
+                { id: 'costo_specifico', name: 'Costo specifico C (€/m²)', type: 'number', min: 0 },
                 { id: 'tipo_schermatura', name: 'Tipo di schermatura', type: 'select', options: ['Schermature/ombreggiamento', 'Meccanismi automatici', 'Filtrazione solare selettiva non riflettente', 'Filtrazione solare selettiva riflettente'] }
             ],
             calculate: (params, operatorType) => {
@@ -732,13 +732,13 @@ const calculatorData = {
                 const finale = Math.min(conUE, imax);
                 return {
                     result: finale,
-                    formula: `Itot = p ├ù min(C, ${cmax}) ├ù Sint${ue>1?' ├ù 1.10 (prodotti UE)':''}; Imas=${imax.toLocaleString('it-IT')}Ôé¼`,
+                    formula: `Itot = p × min(C, ${cmax}) × Sint${ue>1?' × 1.10 (prodotti UE)':''}; Imas=${imax.toLocaleString('it-IT')}€`,
                     variables: { p, C: costo_specifico||0, Ceff, Sint: superficie||0, UE: ue>1, Imas: imax },
                     steps: [
                         `p=${p.toFixed(2)}`,
                         `Ceff=min(${(costo_specifico||0).toFixed(2)}, ${cmax})=${Ceff.toFixed(2)}`,
-                        `Base=${p.toFixed(2)}├ù${Ceff.toFixed(2)}├ù${(superficie||0).toFixed(2)}=${base.toFixed(2)}`,
-                        ue>1?`UE: ${base.toFixed(2)}├ù1.10=${conUE.toFixed(2)}`:`UE: non applicata`,
+                        `Base=${p.toFixed(2)}×${Ceff.toFixed(2)}×${(superficie||0).toFixed(2)}=${base.toFixed(2)}`,
+                        ue>1?`UE: ${base.toFixed(2)}×1.10=${conUE.toFixed(2)}`:`UE: non applicata`,
                         `Finale=min(${conUE.toFixed(2)}, ${imax})=${finale.toFixed(2)}`
                     ]
                 };
@@ -751,8 +751,8 @@ const calculatorData = {
                 allowedOperators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large'],
                 restrictionNote: 'SOLO per PA/ETS non economici e Soggetti Privati su edifici TERZIARIO. NO ambito residenziale.',
             inputs: [
-                { id: 'superficie', name: 'Superficie utile Sed (m┬▓)', type: 'number', min: 0 },
-                { id: 'costo_specifico', name: 'Costo specifico C (Ôé¼/m┬▓)', type: 'number', min: 0 },
+                { id: 'superficie', name: 'Superficie utile Sed (m²)', type: 'number', min: 0 },
+                { id: 'costo_specifico', name: 'Costo specifico C (€/m²)', type: 'number', min: 0 },
                 { id: 'zona_climatica', name: 'Zona climatica', type: 'select', options: ['A', 'B', 'C', 'D', 'E', 'F'] }
             ],
             calculate: (params, operatorType) => {
@@ -762,11 +762,11 @@ const calculatorData = {
                 // Cmax e Imas variano per zona climatica
                 let cmax, imax;
                 if (zona_climatica === 'A' || zona_climatica === 'B' || zona_climatica === 'C') {
-                    cmax = 1000; // Ôé¼/m┬▓
-                    imax = 2500000; // Ôé¼
+                    cmax = 1000; // €/m²
+                    imax = 2500000; // €
                 } else {
-                    cmax = 1300; // Ôé¼/m┬▓
-                    imax = 3000000; // Ôé¼
+                    cmax = 1300; // €/m²
+                    imax = 3000000; // €
                 }
                 
                 const costoEffettivo = Math.min(costo_specifico, cmax);
@@ -792,13 +792,13 @@ const calculatorData = {
                 const finale = Math.min(conUE, imax);
                 return {
                     result: finale,
-                    formula: `Itot = p ├ù min(C, ${cmax}) ├ù Sed${ue>1?' ├ù 1.10 (prodotti UE)':''}; Imas=${imax.toLocaleString('it-IT')}Ôé¼`,
+                    formula: `Itot = p × min(C, ${cmax}) × Sed${ue>1?' × 1.10 (prodotti UE)':''}; Imas=${imax.toLocaleString('it-IT')}€`,
                     variables: { p, C: costo_specifico||0, Ceff, Sed: superficie||0, UE: ue>1, Imas: imax },
                     steps: [
                         `p=${p.toFixed(2)}`,
                         `Ceff=min(${(costo_specifico||0).toFixed(2)}, ${cmax})=${Ceff.toFixed(2)}`,
-                        `Base=${p.toFixed(2)}├ù${Ceff.toFixed(2)}├ù${(superficie||0).toFixed(2)}=${base.toFixed(2)}`,
-                        ue>1?`UE: ${base.toFixed(2)}├ù1.10=${conUE.toFixed(2)}`:`UE: non applicata`,
+                        `Base=${p.toFixed(2)}×${Ceff.toFixed(2)}×${(superficie||0).toFixed(2)}=${base.toFixed(2)}`,
+                        ue>1?`UE: ${base.toFixed(2)}×1.10=${conUE.toFixed(2)}`:`UE: non applicata`,
                         `Finale=min(${conUE.toFixed(2)}, ${imax})=${finale.toFixed(2)}`
                     ]
                 };
@@ -811,23 +811,23 @@ const calculatorData = {
                 allowedOperators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large'],
                 restrictionNote: 'SOLO per PA/ETS non economici e Soggetti Privati su edifici TERZIARIO. NO ambito residenziale.',
             inputs: [
-                { id: 'superficie', name: 'Superficie edificio Sed (m┬▓)', type: 'number', min: 0 },
-                { id: 'costo_specifico', name: 'Costo specifico C (Ôé¼/m┬▓)', type: 'number', min: 0 },
+                { id: 'superficie', name: 'Superficie edificio Sed (m²)', type: 'number', min: 0 },
+                { id: 'costo_specifico', name: 'Costo specifico C (€/m²)', type: 'number', min: 0 },
                 { id: 'tipo_lampada', name: 'Tipo di lampada', type: 'select', options: ['Alta efficienza', 'LED'] }
             ],
             calculate: (params, operatorType) => {
                 const { superficie, costo_specifico, tipo_lampada } = params;
                 if (!superficie || !costo_specifico) return 0;
                 
-                // Formula: Itot = %spesa ├ù C ├ù Sed
+                // Formula: Itot = %spesa × C × Sed
                 // Cmax e Imas variano per tipo
                 let cmax, imax;
                 if (tipo_lampada === 'Alta efficienza') {
-                    cmax = 15; // Ôé¼/m┬▓
-                    imax = 50000; // Ôé¼
+                    cmax = 15; // €/m²
+                    imax = 50000; // €
                 } else { // LED
-                    cmax = 35; // Ôé¼/m┬▓
-                    imax = 140000; // Ôé¼
+                    cmax = 35; // €/m²
+                    imax = 140000; // €
                 }
                 
                 const costoEffettivo = Math.min(costo_specifico, cmax);
@@ -850,7 +850,7 @@ const calculatorData = {
                 const ue = params?.premiums?.['prodotti-ue'] ? 1.10 : 1.0;
                 const conUE = base * ue;
                 const finale = Math.min(conUE, imax);
-                return { result: finale, formula: `Itot = p ├ù min(C, ${cmax}) ├ù Sed${ue>1?' ├ù 1.10 (prodotti UE)':''}; Imas=${imax.toLocaleString('it-IT')}Ôé¼`, variables:{p,C:costo_specifico||0,Ceff,Sed:superficie||0,UE:ue>1,Imas:imax}, steps:[`p=${p.toFixed(2)}`,`Ceff=min(${(costo_specifico||0).toFixed(2)}, ${cmax})=${Ceff.toFixed(2)}`,`Base=${p.toFixed(2)}├ù${Ceff.toFixed(2)}├ù${(superficie||0).toFixed(2)}=${base.toFixed(2)}`, ue>1?`UE: ${base.toFixed(2)}├ù1.10=${conUE.toFixed(2)}`:`UE: non applicata`, `Finale=min(${conUE.toFixed(2)}, ${imax})=${finale.toFixed(2)}`] };
+                return { result: finale, formula: `Itot = p × min(C, ${cmax}) × Sed${ue>1?' × 1.10 (prodotti UE)':''}; Imas=${imax.toLocaleString('it-IT')}€`, variables:{p,C:costo_specifico||0,Ceff,Sed:superficie||0,UE:ue>1,Imas:imax}, steps:[`p=${p.toFixed(2)}`,`Ceff=min(${(costo_specifico||0).toFixed(2)}, ${cmax})=${Ceff.toFixed(2)}`,`Base=${p.toFixed(2)}×${Ceff.toFixed(2)}×${(superficie||0).toFixed(2)}=${base.toFixed(2)}`, ue>1?`UE: ${base.toFixed(2)}×1.10=${conUE.toFixed(2)}`:`UE: non applicata`, `Finale=min(${conUE.toFixed(2)}, ${imax})=${finale.toFixed(2)}`] };
             }
         },
         'building-automation': {
@@ -860,16 +860,16 @@ const calculatorData = {
                 allowedOperators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large'],
                 restrictionNote: 'SOLO per PA/ETS non economici e Soggetti Privati su edifici TERZIARIO. NO ambito residenziale.',
             inputs: [
-                { id: 'superficie', name: 'Superficie edificio Sed (m┬▓)', type: 'number', min: 0 },
-                { id: 'costo_specifico', name: 'Costo specifico C (Ôé¼/m┬▓)', type: 'number', min: 0 }
+                { id: 'superficie', name: 'Superficie edificio Sed (m²)', type: 'number', min: 0 },
+                { id: 'costo_specifico', name: 'Costo specifico C (€/m²)', type: 'number', min: 0 }
             ],
             calculate: (params, operatorType) => {
                 const { superficie, costo_specifico } = params;
                 if (!superficie || !costo_specifico) return 0;
                 
-                // Formula: Itot = %spesa ├ù C ├ù Sed, con Itot Ôëñ Imas
-                const cmax = 60; // Ôé¼/m┬▓
-                const imax = 100000; // Ôé¼
+                // Formula: Itot = %spesa × C × Sed, con Itot ≤ Imas
+                const cmax = 60; // €/m²
+                const imax = 100000; // €
                 
                 const costoEffettivo = Math.min(costo_specifico, cmax);
                 const percentuale = operatorType === 'pa' ? 1.0 : 0.40;
@@ -889,19 +889,19 @@ const calculatorData = {
                 const base=p*Ceff*(superficie||0);
                 const ue=params?.premiums?.['prodotti-ue']?1.10:1.0;
                 const conUE=base*ue; const finale=Math.min(conUE, imax);
-                return { result: finale, formula:`Itot = p ├ù min(C, ${cmax}) ├ù Sed${ue>1?' ├ù 1.10 (prodotti UE)':''}; Imas=${imax.toLocaleString('it-IT')}Ôé¼`, variables:{p,C:costo_specifico||0,Ceff,Sed:superficie||0,UE:ue>1,Imas:imax}, steps:[`p=${p.toFixed(2)}`,`Ceff=min(${(costo_specifico||0).toFixed(2)}, ${cmax})=${Ceff.toFixed(2)}`,`Base=${p.toFixed(2)}├ù${Ceff.toFixed(2)}├ù${(superficie||0).toFixed(2)}=${base.toFixed(2)}`, ue>1?`UE: ${base.toFixed(2)}├ù1.10=${conUE.toFixed(2)}`:`UE: non applicata`, `Finale=min(${conUE.toFixed(2)}, ${imax})=${finale.toFixed(2)}`] };
+                return { result: finale, formula:`Itot = p × min(C, ${cmax}) × Sed${ue>1?' × 1.10 (prodotti UE)':''}; Imas=${imax.toLocaleString('it-IT')}€`, variables:{p,C:costo_specifico||0,Ceff,Sed:superficie||0,UE:ue>1,Imas:imax}, steps:[`p=${p.toFixed(2)}`,`Ceff=min(${(costo_specifico||0).toFixed(2)}, ${cmax})=${Ceff.toFixed(2)}`,`Base=${p.toFixed(2)}×${Ceff.toFixed(2)}×${(superficie||0).toFixed(2)}=${base.toFixed(2)}`, ue>1?`UE: ${base.toFixed(2)}×1.10=${conUE.toFixed(2)}`:`UE: non applicata`, `Finale=min(${conUE.toFixed(2)}, ${imax})=${finale.toFixed(2)}`] };
             }
         },
         'infrastrutture-ricarica': {
             name: '1.G - Infrastrutture di ricarica per veicoli elettrici',
-            description: 'Art. 5, comma 1, lett. g) - Realizzazione di infrastrutture per la ricarica di veicoli elettrici presso edifici pubblici o ad uso terziario per promuovere la mobilit├á sostenibile.',
+            description: 'Art. 5, comma 1, lett. g) - Realizzazione di infrastrutture per la ricarica di veicoli elettrici presso edifici pubblici o ad uso terziario per promuovere la mobilità sostenibile.',
             category: 'Efficienza Energetica',
                 allowedOperators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large'],
                 restrictionNote: 'SOLO per PA/ETS non economici e Soggetti Privati su edifici TERZIARIO. NO ambito residenziale. Deve essere congiunto a installazione pompa di calore elettrica.',
             inputs: [
                 { id: 'tipo_infrastruttura', name: 'Tipo infrastruttura', type: 'select', options: ['Standard monofase (7.4-22kW)', 'Standard trifase (7.4-22kW)', 'Media (22-50kW)', 'Alta (50-100kW)', 'Oltre 100kW'] },
                 { id: 'potenza', name: 'Potenza (kW) - se applicabile', type: 'number', min: 0, step: 0.1 },
-                { id: 'costo_totale', name: 'Costo totale sostenuto (Ôé¼)', type: 'number', min: 0 }
+                { id: 'costo_totale', name: 'Costo totale sostenuto (€)', type: 'number', min: 0 }
             ],
             calculate: (params, operatorType) => {
                 const { tipo_infrastruttura, potenza, costo_totale } = params;
@@ -947,7 +947,7 @@ const calculatorData = {
                 }
                 const spesaAmmissibile=Math.min(costo_totale||0, costoMassimoAmmissibile);
                 const incentivo=0.30*spesaAmmissibile;
-                return { result: incentivo, formula:`Itot = 30% ├ù min(Spesa, Cmax_tipo)`, variables:{Spesa:costo_totale||0, Cmax_tipo:costoMassimoAmmissibile, SpesaAmm:spesaAmmissibile} };
+                return { result: incentivo, formula:`Itot = 30% × min(Spesa, Cmax_tipo)`, variables:{Spesa:costo_totale||0, Cmax_tipo:costoMassimoAmmissibile, SpesaAmm:spesaAmmissibile} };
             }
         },
         'fotovoltaico-accumulo': {
@@ -958,8 +958,8 @@ const calculatorData = {
                 restrictionNote: 'SOLO per PA/ETS non economici e Soggetti Privati su edifici TERZIARIO. NO ambito residenziale. Deve essere congiunto a installazione pompa di calore elettrica.',
             inputs: [
                 { id: 'potenza_fv', name: 'Potenza impianto FV (kWp)', type: 'number', min: 0, step: 0.1 },
-                { id: 'capacita_accumulo', name: 'Capacit├á accumulo (kWh)', type: 'number', min: 0, step: 0.1 },
-                { id: 'registro_ue', name: 'Moduli FV iscritti al registro UE', type: 'select', options: ['No', 'S├¼ - Requisiti lett. a) (+5%)', 'S├¼ - Requisiti lett. b) (+10%)', 'S├¼ - Requisiti lett. c) (+15%)'] }
+                { id: 'capacita_accumulo', name: 'Capacità accumulo (kWh)', type: 'number', min: 0, step: 0.1 },
+                { id: 'registro_ue', name: 'Moduli FV iscritti al registro UE', type: 'select', options: ['No', 'Sì - Requisiti lett. a) (+5%)', 'Sì - Requisiti lett. b) (+10%)', 'Sì - Requisiti lett. c) (+15%)'] }
             ],
             calculate: (params, operatorType) => {
                 const { potenza_fv, capacita_accumulo, registro_ue } = params;
@@ -974,7 +974,7 @@ const calculatorData = {
                 
                 const costoAmmissibileFV = potenza_fv * cmaxFV;
                 
-                // Costo massimo ammissibile per accumulo: 1000 Ôé¼/kWh
+                // Costo massimo ammissibile per accumulo: 1000 €/kWh
                 const costoAmmissibileAccumulo = capacita_accumulo * 1000;
                 
                 // Percentuale base: 20%
@@ -998,7 +998,7 @@ const calculatorData = {
                 let percentuale=0.20;
                 if (registro_ue?.includes('lett. a)')) percentuale+=0.05; else if (registro_ue?.includes('lett. b)')) percentuale+=0.10; else if (registro_ue?.includes('lett. c)')) percentuale+=0.15;
                 const base=percentuale*(costoAmmissibileFV+costoAmmissibileAccumulo);
-                return { result: base, formula:`Itot = ${percentuale*100}% ├ù (min(C_FV, cmax_FV) + min(C_acc, 1000Ôé¼/kWh))`, variables:{p_fv:p, cmax_fv:cmaxFV, costi_fv:costoAmmissibileFV, kwh_acc:k, cmax_acc_kwh:1000, costi_acc:costoAmmissibileAccumulo} };
+                return { result: base, formula:`Itot = ${percentuale*100}% × (min(C_FV, cmax_FV) + min(C_acc, 1000€/kWh))`, variables:{p_fv:p, cmax_fv:cmaxFV, costi_fv:costoAmmissibileFV, kwh_acc:k, cmax_acc_kwh:1000, costi_acc:costoAmmissibileAccumulo} };
             }
         },
 
@@ -1010,8 +1010,8 @@ const calculatorData = {
                 allowedOperators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large', 'private_residential'],
                 restrictionNote: 'Per imprese e ETS economici: NON ammesse pompe di calore a GAS (art. 25, comma 2). Solo pompe di calore elettriche.',
             inputs: [
-                { id: 'costo_totale', name: 'Costo totale intervento (Ôé¼)', type: 'number', min: 0, help: 'Necessario per calcolo premialit├á 100%' },
-                { id: 'tipo_pompa', name: 'Tipo di pompa di calore', type: 'select', options: ['aria/aria split/multisplit', 'aria/aria fixed double duct', 'aria/aria VRF/VRV (13-35kW)', 'aria/aria VRF/VRV (>35kW)', 'aria/aria rooftop (Ôëñ35kW)', 'aria/aria rooftop (>35kW)', 'aria/acqua (Ôëñ35kW)', 'aria/acqua (>35kW)', 'acqua/aria (Ôëñ35kW)', 'acqua/aria (>35kW)', 'acqua/acqua (Ôëñ35kW)', 'acqua/acqua (>35kW)', 'salamoia/aria (Ôëñ35kW)', 'salamoia/aria (>35kW)', 'salamoia/acqua (Ôëñ35kW)', 'salamoia/acqua (>35kW)'] },
+                { id: 'costo_totale', name: 'Costo totale intervento (€)', type: 'number', min: 0, help: 'Necessario per calcolo premialità 100%' },
+                { id: 'tipo_pompa', name: 'Tipo di pompa di calore', type: 'select', options: ['aria/aria split/multisplit', 'aria/aria fixed double duct', 'aria/aria VRF/VRV (13-35kW)', 'aria/aria VRF/VRV (>35kW)', 'aria/aria rooftop (≤35kW)', 'aria/aria rooftop (>35kW)', 'aria/acqua (≤35kW)', 'aria/acqua (>35kW)', 'acqua/aria (≤35kW)', 'acqua/aria (>35kW)', 'acqua/acqua (≤35kW)', 'acqua/acqua (>35kW)', 'salamoia/aria (≤35kW)', 'salamoia/aria (>35kW)', 'salamoia/acqua (≤35kW)', 'salamoia/acqua (>35kW)'] },
                 { id: 'potenza_nominale', name: 'Potenza termica nominale Prated (kW)', type: 'number', min: 0, step: 0.1 },
                 { id: 'scop', name: 'SCOP stagionale', type: 'number', min: 2.5, step: 0.01 },
                 { id: 'scop_minimo', name: 'SCOP minimo ecodesign', type: 'number', min: 2.5, step: 0.01 },
@@ -1021,9 +1021,9 @@ const calculatorData = {
                 const { tipo_pompa, potenza_nominale, scop, scop_minimo, zona_climatica } = params;
                 if (!potenza_nominale || !scop || !scop_minimo || !zona_climatica) return 0;
                 
-                // Formula: Ia_tot = Ci ├ù EI
-                // dove EI = Qu ├ù [1 - 1/SCOP] ├ù kp
-                // e Qu = Prated ├ù Quf
+                // Formula: Ia_tot = Ci × EI
+                // dove EI = Qu × [1 - 1/SCOP] × kp
+                // e Qu = Prated × Quf
                 
                 // Tabella 8: Quf per zona climatica
                 const qufTable = { A: 600, B: 850, C: 1100, D: 1400, E: 1700, F: 1800 };
@@ -1032,14 +1032,14 @@ const calculatorData = {
                 // Calcolo Qu
                 const qu = potenza_nominale * quf;
                 
-                // Calcolo kp (coefficiente di premialit├á)
+                // Calcolo kp (coefficiente di premialità)
                 const kp = scop / scop_minimo;
                 
                 // Calcolo EI (energia termica incentivata)
                 let ei;
                 if (tipo_pompa.includes('fixed double duct')) {
                     // Per fixed double duct usa COP invece di SCOP
-                    // Formula: EI = Qu ├ù [1 - 1/COP] ├ù kp
+                    // Formula: EI = Qu × [1 - 1/COP] × kp
                     // Assumiamo COP = SCOP per semplificazione (andrebbe chiesto separatamente)
                     ei = qu * (1 - 1/scop) * kp;
                 } else {
@@ -1092,7 +1092,7 @@ const calculatorData = {
                 const Ia_annuo = Ci * EI;
                 const durata = operatorType === 'pa' ? 5 : 2;
                 const totale = Ia_annuo * durata;
-                return { result: totale, formula:`Ia_tot = Ci ├ù EI ├ù durata; EI = Qu ├ù (1 - 1/SCOP) ├ù kp; Qu = Prated ├ù Quf`, variables:{Ci,EI,Qu,Prated:Pr,Quf,SCOP:scop||0,kp,durata} };
+                return { result: totale, formula:`Ia_tot = Ci × EI × durata; EI = Qu × (1 - 1/SCOP) × kp; Qu = Prated × Quf`, variables:{Ci,EI,Qu,Prated:Pr,Quf,SCOP:scop||0,kp,durata} };
             }
         },
         'sistemi-ibridi': {
@@ -1102,8 +1102,8 @@ const calculatorData = {
                 allowedOperators: ['pa', 'private_tertiary_person', 'private_residential'],
                 restrictionNote: 'NON AMMESSI per imprese e ETS economici (art. 25, comma 2): sistemi ibridi con caldaia a gas sono combustibili fossili.',
             inputs: [
-                { id: 'costo_totale', name: 'Costo totale intervento (Ôé¼)', type: 'number', min: 0, help: 'Necessario per calcolo premialit├á 100%' },
-                { id: 'tipo_sistema', name: 'Tipo sistema', type: 'select', options: ['Ibrido factory made (Pn Ôëñ35kW)', 'Ibrido factory made (Pn >35kW)', 'Sistema bivalente (Pn Ôëñ35kW)', 'Sistema bivalente (Pn >35kW)'] },
+                { id: 'costo_totale', name: 'Costo totale intervento (€)', type: 'number', min: 0, help: 'Necessario per calcolo premialità 100%' },
+                { id: 'tipo_sistema', name: 'Tipo sistema', type: 'select', options: ['Ibrido factory made (Pn ≤35kW)', 'Ibrido factory made (Pn >35kW)', 'Sistema bivalente (Pn ≤35kW)', 'Sistema bivalente (Pn >35kW)'] },
                 { id: 'potenza_pdc', name: 'Potenza termica pompa di calore Prated (kW)', type: 'number', min: 0, step: 0.1 },
                 { id: 'scop', name: 'SCOP pompa di calore', type: 'number', min: 2.5, step: 0.01 },
                 { id: 'scop_minimo', name: 'SCOP minimo ecodesign', type: 'number', min: 2.5, step: 0.01 },
@@ -1113,14 +1113,14 @@ const calculatorData = {
                 const { tipo_sistema, potenza_pdc, scop, scop_minimo, zona_climatica } = params;
                 if (!potenza_pdc || !scop || !scop_minimo || !zona_climatica) return 0;
                 
-                // Formula: Ia_tot = k ├ù Ei ├ù Ci
-                // dove Ei = Qu ├ù [1 - 1/SCOP] ├ù kp
+                // Formula: Ia_tot = k × Ei × Ci
+                // dove Ei = Qu × [1 - 1/SCOP] × kp
                 
                 // Tabella 8: Quf
                 const qufTable = { A: 600, B: 850, C: 1100, D: 1400, E: 1700, F: 1800 };
                 const quf = qufTable[zona_climatica];
                 
-                // Qu = Prated ├ù Quf
+                // Qu = Prated × Quf
                 const qu = potenza_pdc * quf;
                 
                 // kp = SCOP/SCOP_minimo
@@ -1137,7 +1137,7 @@ const calculatorData = {
                     k = tipo_sistema.includes('>35kW') ? 1.1 : 1.0; // Bivalente
                 }
                 
-                // Ci (assumiamo aria/acqua come tipo pi├╣ comune per sistemi ibridi)
+                // Ci (assumiamo aria/acqua come tipo più comune per sistemi ibridi)
                 const ci = potenza_pdc <= 35 ? 0.150 : 0.060;
                 
                 // Incentivo annuo
@@ -1154,7 +1154,7 @@ const calculatorData = {
                 const EI = Qu * (1 - 1/(scop||1)) * kp;
                 let k; if (tipo_sistema?.includes('factory made')) k=1.25; else k = tipo_sistema?.includes('>35kW')?1.1:1.0;
                 const Ci = Pr<=35?0.150:0.060; const Ia_annuo = k * EI * Ci; const durata= operatorType==='pa'?5:2; const tot=Ia_annuo*durata;
-                return { result: tot, formula:`Ia_tot = k ├ù EI ├ù Ci ├ù durata; EI = Qu ├ù (1 - 1/SCOP) ├ù kp; Qu = Prated ├ù Quf`, variables:{k,Ei:EI,Qu,Prated:Pr,Quf,Ci,SCOP:scop||0,kp,durata} };
+                return { result: tot, formula:`Ia_tot = k × EI × Ci × durata; EI = Qu × (1 - 1/SCOP) × kp; Qu = Prated × Quf`, variables:{k,Ei:EI,Qu,Prated:Pr,Quf,Ci,SCOP:scop||0,kp,durata} };
             }
         },
         'biomassa': {
@@ -1162,14 +1162,14 @@ const calculatorData = {
             description: 'Art. 8, comma 1, lett. c) - Sostituzione di generatori di calore esistenti con caldaie, stufe o termocamini alimentati a biomassa (pellet, legna) ad alta efficienza e basse emissioni.',
             category: 'Fonti Rinnovabili',
                 allowedOperators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large', 'private_residential'],
-                restrictionNote: 'Ammesso per tutti i soggetti. Biomassa ├¿ fonte rinnovabile, non combustibile fossile.',
+                restrictionNote: 'Ammesso per tutti i soggetti. Biomassa è fonte rinnovabile, non combustibile fossile.',
             inputs: [
-                { id: 'costo_totale', name: 'Costo totale intervento (Ôé¼)', type: 'number', min: 0, help: 'Necessario per calcolo premialit├á 100%' },
+                { id: 'costo_totale', name: 'Costo totale intervento (€)', type: 'number', min: 0, help: 'Necessario per calcolo premialità 100%' },
                 { id: 'tipo_generatore', name: 'Tipo generatore', type: 'select', options: ['Caldaia a biomassa', 'Stufa a pellet', 'Stufa a legna', 'Termocamino'] },
                 { id: 'potenza_nominale', name: 'Potenza termica nominale Pn (kW)', type: 'number', min: 0, step: 0.1 },
                 { id: 'zona_climatica', name: 'Zona climatica', type: 'select', options: ['A', 'B', 'C', 'D', 'E', 'F'] },
                 { id: 'riduzione_emissioni', name: 'Riduzione emissioni particolato vs DM 186/2017 classe 5 stelle', type: 'select', options: ['Fino al 20%', 'Dal 20% al 50%', 'Oltre il 50%'] },
-                { id: 'centrale_teleriscaldamento', name: 'Installato presso centrale teleriscaldamento?', type: 'select', options: ['No', 'S├¼'] }
+                { id: 'centrale_teleriscaldamento', name: 'Installato presso centrale teleriscaldamento?', type: 'select', options: ['No', 'Sì'] }
             ],
             calculate: (params, operatorType) => {
                 const { tipo_generatore, potenza_nominale, zona_climatica, riduzione_emissioni, centrale_teleriscaldamento } = params;
@@ -1192,23 +1192,23 @@ const calculatorData = {
                     else if (potenza_nominale <= 500) ci = 0.025;
                     else ci = 0.020;
                 } else if (tipo_generatore.includes('pellet')) {
-                    ci = 0.055; // Solo per Pn Ôëñ 35 kW
+                    ci = 0.055; // Solo per Pn ≤ 35 kW
                 } else { // Stufa a legna o Termocamino
-                    ci = 0.045; // Solo per Pn Ôëñ 35 kW
+                    ci = 0.045; // Solo per Pn ≤ 35 kW
                 }
                 
                 // Formula varia per tipo generatore
                 let incentivo_annuo;
                 if (tipo_generatore === 'Caldaia a biomassa') {
-                    // Formula: Ia_tot = Pn ├ù Hr ├ù Ci ├ù Ce
+                    // Formula: Ia_tot = Pn × Hr × Ci × Ce
                     incentivo_annuo = potenza_nominale * hr * ci * ce;
                 } else {
-                    // Formula per stufe/termocamini: Ia_tot = 3.35 ├ù ln(Pn) ├ù Hr ├ù Ci ├ù Ce
+                    // Formula per stufe/termocamini: Ia_tot = 3.35 × ln(Pn) × Hr × Ci × Ce
                     incentivo_annuo = 3.35 * Math.log(potenza_nominale) * hr * ci * ce;
                 }
                 
                 // Riduzione 20% se presso centrale teleriscaldamento
-                if (centrale_teleriscaldamento === 'S├¼') {
+                if (centrale_teleriscaldamento === 'Sì') {
                     incentivo_annuo *= 0.80;
                 }
                 
@@ -1224,9 +1224,9 @@ const calculatorData = {
                 let Ci; if (tipo_generatore==='Caldaia a biomassa'){ if (Pn<=35) Ci=0.060; else if (Pn<=500) Ci=0.025; else Ci=0.020; }
                 else if (tipo_generatore?.includes('pellet')) Ci=0.055; else Ci=0.045;
                 let Ia_annuo; if (tipo_generatore==='Caldaia a biomassa'){ Ia_annuo = Pn * Hr * Ci * Ce; } else { Ia_annuo = 3.35 * Math.log(Math.max(Pn,1)) * Hr * Ci * Ce; }
-                if (centrale_teleriscaldamento==='S├¼') Ia_annuo*=0.80;
+                if (centrale_teleriscaldamento==='Sì') Ia_annuo*=0.80;
                 const durata = operatorType==='pa'?5:2; const tot=Ia_annuo*durata;
-                return { result: tot, formula:`Ia_tot = f(tipo) ├ù Hr ├ù Ci ├ù Ce ├ù durata${centrale_teleriscaldamento==='S├¼'?' ├ù 0.80 (teleriscaldamento)':''}`, variables:{tipo:tipo_generatore,Pn,Hr,Ci,Ce,durata} };
+                return { result: tot, formula:`Ia_tot = f(tipo) × Hr × Ci × Ce × durata${centrale_teleriscaldamento==='Sì'?' × 0.80 (teleriscaldamento)':''}`, variables:{tipo:tipo_generatore,Pn,Hr,Ci,Ce,durata} };
             }
         },
         'solare-termico': {
@@ -1234,10 +1234,10 @@ const calculatorData = {
             description: 'Art. 8, comma 1, lett. d) - Installazione di impianti solari termici per la produzione di acqua calda sanitaria (ACS), riscaldamento o solar cooling utilizzando l\'energia solare.',
             category: 'Fonti Rinnovabili',
                 allowedOperators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large', 'private_residential'],
-                restrictionNote: 'Ammesso per tutti i soggetti. Solare termico ├¿ fonte rinnovabile.',
+                restrictionNote: 'Ammesso per tutti i soggetti. Solare termico è fonte rinnovabile.',
             inputs: [
-                { id: 'costo_totale', name: 'Costo totale intervento (Ôé¼)', type: 'number', min: 0, help: 'Necessario per calcolo premialit├á 100%' },
-                { id: 'superficie_lorda', name: 'Superficie solare lorda Sl (m┬▓)', type: 'number', min: 0, step: 0.01 },
+                { id: 'costo_totale', name: 'Costo totale intervento (€)', type: 'number', min: 0, help: 'Necessario per calcolo premialità 100%' },
+                { id: 'superficie_lorda', name: 'Superficie solare lorda Sl (m²)', type: 'number', min: 0, step: 0.01 },
                 { id: 'tipo_impianto', name: 'Tipo di impianto', type: 'select', options: ['Produzione ACS', 'Produzione ACS + riscaldamento', 'Collettori a concentrazione', 'Solar cooling'] },
                 { id: 'tipo_collettore', name: 'Tipo collettore (se applicabile)', type: 'select', options: ['Piani vetrati', 'Sottovuoto', 'Concentrazione', 'N/A'] },
                 { id: 'qcol', name: 'Energia annua Qcol da certificazione (kWh) - opzionale', type: 'number', min: 0, step: 0.1 }
@@ -1246,8 +1246,8 @@ const calculatorData = {
                 const { superficie_lorda, tipo_impianto, tipo_collettore, qcol } = params;
                 if (!superficie_lorda || !tipo_impianto) return 0;
                 
-                // Formula: Ia_tot = Ci ├ù Qu ├ù Sl
-                // dove Qu = Qcol/AG (energia per m┬▓)
+                // Formula: Ia_tot = Ci × Qu × Sl
+                // dove Qu = Qcol/AG (energia per m²)
                 
                 // Tabella 16: Ci in base a Sl e tipo impianto
                 let ci;
@@ -1269,12 +1269,12 @@ const calculatorData = {
                     ci = tipo_impianto === 'Solar cooling' ? 0.14 : 0.11;
                 }
                 
-                // Qu: energia termica prodotta per m┬▓
+                // Qu: energia termica prodotta per m²
                 // Se fornito Qcol dalla certificazione, usalo
-                // Altrimenti stima generica (da Tabella 17: Tm 50┬░C per ACS, 75┬░C per processo/cooling)
+                // Altrimenti stima generica (da Tabella 17: Tm 50°C per ACS, 75°C per processo/cooling)
                 let qu;
                 if (qcol && qcol > 0) {
-                    qu = qcol; // gi├á in kWh, assumiamo per m┬▓ o totale
+                    qu = qcol; // già in kWh, assumiamo per m² o totale
                 } else {
                     // Stime conservative basate su tipo collettore e applicazione
                     if (tipo_collettore === 'Piani vetrati') qu = 400;
@@ -1299,7 +1299,7 @@ const calculatorData = {
                 else if (Sl<500){ Ci = tipo_impianto==='Solar cooling'?0.15:0.12; } else { Ci = tipo_impianto==='Solar cooling'?0.14:0.11; }
                 let Qu; if (qcol&&qcol>0) Qu=qcol; else { if (tipo_collettore==='Piani vetrati') Qu=400; else if (tipo_collettore==='Sottovuoto') Qu=600; else if (tipo_collettore==='Concentrazione') Qu=800; else Qu=500; }
                 const Ia_annuo = Ci * Qu * Sl; const durata = operatorType==='pa'?5:2; const tot=Ia_annuo*durata;
-                return { result: tot, formula:`Ia_tot = Ci ├ù Qu ├ù Sl ├ù durata`, variables:{Ci,Qu,Sl,durata} };
+                return { result: tot, formula:`Ia_tot = Ci × Qu × Sl × durata`, variables:{Ci,Qu,Sl,durata} };
             }
         },
         'scaldacqua-pdc': {
@@ -1309,16 +1309,16 @@ const calculatorData = {
                 allowedOperators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large', 'private_residential'],
                 restrictionNote: 'Ammesso per tutti i soggetti. Scaldacqua a pompa di calore elettrica.',
             inputs: [
-                { id: 'capacita', name: 'Capacit├á del serbatoio (litri)', type: 'number', min: 80 },
+                { id: 'capacita', name: 'Capacità del serbatoio (litri)', type: 'number', min: 80 },
                 { id: 'classe_energetica', name: 'Classe energetica (Reg. EU 812/2013)', type: 'select', options: ['Classe A', 'Classe A+'] },
-                { id: 'costo_totale', name: 'Costo totale intervento (Ôé¼)', type: 'number', min: 0 }
+                { id: 'costo_totale', name: 'Costo totale intervento (€)', type: 'number', min: 0 }
             ],
             calculate: (params, operatorType) => {
                 const { capacita, classe_energetica, costo_totale } = params;
                 if (!capacita || !classe_energetica || !costo_totale) return 0;
                 
                 // Formula: Incentivo = 40% della spesa sostenuta
-                // con tetti massimi per classe e capacit├á
+                // con tetti massimi per classe e capacità
                 
                 let incentivo = 0.40 * costo_totale;
                 
@@ -1336,7 +1336,7 @@ const calculatorData = {
                 const { capacita, classe_energetica, costo_totale } = params; const cap=capacita||0;
                 let imax; if (classe_energetica==='Classe A') imax = cap<=150?500:1100; else imax = cap<=150?700:1500;
                 const base = 0.40*(costo_totale||0); const finale=Math.min(base, imax);
-                return { result: finale, formula:`Itot = 40% ├ù Spesa; Imas=${imax.toLocaleString('it-IT')}Ôé¼`, variables:{Spesa:costo_totale||0,Imas:imax}, steps:[`Base=0.40├ù${(costo_totale||0).toFixed(2)}=${base.toFixed(2)}`,`Finale=min(${base.toFixed(2)}, ${imax})=${finale.toFixed(2)}`] };
+                return { result: finale, formula:`Itot = 40% × Spesa; Imas=${imax.toLocaleString('it-IT')}€`, variables:{Spesa:costo_totale||0,Imas:imax}, steps:[`Base=0.40×${(costo_totale||0).toFixed(2)}=${base.toFixed(2)}`,`Finale=min(${base.toFixed(2)}, ${imax})=${finale.toFixed(2)}`] };
             }
         },
         'teleriscaldamento': {
@@ -1347,13 +1347,13 @@ const calculatorData = {
                 restrictionNote: 'Ammesso per tutti i soggetti. Teleriscaldamento da fonti rinnovabili.',
             inputs: [
                 { id: 'potenza_contrattuale', name: 'Potenza termica contrattuale (kW)', type: 'number', min: 0 },
-                { id: 'costo_totale', name: 'Costo totale dell\'allacciamento (Ôé¼)', type: 'number', min: 0 }
+                { id: 'costo_totale', name: 'Costo totale dell\'allacciamento (€)', type: 'number', min: 0 }
             ],
             calculate: (params, operatorType) => {
                 const { potenza_contrattuale, costo_totale } = params;
                 if (!potenza_contrattuale || !costo_totale) return 0;
                 
-                // Formula: Itot = percentuale ├ù C ├ù Pnsc
+                // Formula: Itot = percentuale × C × Pnsc
                 // Sezione 2.7: 65% della spesa, con Cmax variabile per fasce
                 
                 let cmax;
@@ -1387,29 +1387,29 @@ const calculatorData = {
                 const { potenza_contrattuale, costo_totale } = params; const P=potenza_contrattuale||0; let cmax, imax;
                 if (P<=35){ cmax=200; imax=6500; } else if (P<=100){ cmax=160; imax=15000; } else { cmax=130; imax=30000; }
                 const costoAmmissibile=P*cmax; const costoEffettivo=Math.min(costo_totale||0, costoAmmissibile); const base=0.65*costoEffettivo; const finale=Math.min(base, imax);
-                return { result: finale, formula:`Itot = 65% ├ù min(Spesa, Pn ├ù Cmax); Imas=${imax.toLocaleString('it-IT')}Ôé¼`, variables:{Spesa:costo_totale||0,Pn:P,cmax,Imas:imax}, steps:[`C_amm=P├ùCmax=${P}├ù${cmax}=${costoAmmissibile.toFixed(2)}`,`Spesa_eff=min(${(costo_totale||0).toFixed(2)}, ${costoAmmissibile.toFixed(2)})=${costoEffettivo.toFixed(2)}`,`Base=0.65├ù${costoEffettivo.toFixed(2)}=${base.toFixed(2)}`,`Finale=min(${base.toFixed(2)}, ${imax})=${finale.toFixed(2)}`] };
+                return { result: finale, formula:`Itot = 65% × min(Spesa, Pn × Cmax); Imas=${imax.toLocaleString('it-IT')}€`, variables:{Spesa:costo_totale||0,Pn:P,cmax,Imas:imax}, steps:[`C_amm=P×Cmax=${P}×${cmax}=${costoAmmissibile.toFixed(2)}`,`Spesa_eff=min(${(costo_totale||0).toFixed(2)}, ${costoAmmissibile.toFixed(2)})=${costoEffettivo.toFixed(2)}`,`Base=0.65×${costoEffettivo.toFixed(2)}=${base.toFixed(2)}`,`Finale=min(${base.toFixed(2)}, ${imax})=${finale.toFixed(2)}`] };
             }
         },
         'microcogenerazione': {
             name: '2.G - Microcogenerazione alimentata da fonti rinnovabili',
-            description: 'Art. 8, comma 1, lett. g) - Installazione di sistemi di microcogenerazione (potenza Ôëñ50 kWe) alimentati da fonti rinnovabili per la produzione combinata di energia elettrica e termica.',
+            description: 'Art. 8, comma 1, lett. g) - Installazione di sistemi di microcogenerazione (potenza ≤50 kWe) alimentati da fonti rinnovabili per la produzione combinata di energia elettrica e termica.',
             category: 'Fonti Rinnovabili',
                 allowedOperators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large', 'private_residential'],
                 restrictionNote: 'Ammesso per tutti i soggetti. Microcogenerazione da fonti rinnovabili.',
             inputs: [
                 { id: 'potenza_elettrica', name: 'Potenza elettrica nominale (kWe)', type: 'number', min: 0, max: 50 },
-                { id: 'costo_totale', name: 'Costo totale intervento (Ôé¼)', type: 'number', min: 0 }
+                { id: 'costo_totale', name: 'Costo totale intervento (€)', type: 'number', min: 0 }
             ],
             calculate: (params, operatorType) => {
                 const { potenza_elettrica, costo_totale } = params;
                 if (!potenza_elettrica || !costo_totale) return 0;
                 
-                // Formula: Itot = percentuale ├ù C ├ù Pnint
-                // Sezione 2.8: 65% della spesa, Cmax 5000 Ôé¼/kWe, Imas 100.000 Ôé¼
+                // Formula: Itot = percentuale × C × Pnint
+                // Sezione 2.8: 65% della spesa, Cmax 5000 €/kWe, Imas 100.000 €
                 
                 const percentuale = 0.65;
-                const cmax = 5000; // Ôé¼/kWe
-                const imax = 100000; // Ôé¼
+                const cmax = 5000; // €/kWe
+                const imax = 100000; // €
                 
                 const costoAmmissibile = potenza_elettrica * cmax;
                 const costoEffettivo = Math.min(costo_totale, costoAmmissibile);
@@ -1421,12 +1421,12 @@ const calculatorData = {
             explain: (params) => {
                 const { potenza_elettrica, costo_totale } = params; const P=potenza_elettrica||0; const cmax=5000; const imax=100000;
                 const costoAmm=P*cmax; const costoEff=Math.min(costo_totale||0, costoAmm); const base=0.65*costoEff; const finale=Math.min(base, imax);
-                return { result: finale, formula:`Itot = 65% ├ù min(Spesa, P_el ├ù 5000Ôé¼/kWe); Imas=${imax.toLocaleString('it-IT')}Ôé¼`, variables:{Spesa:costo_totale||0,P_el:P,Imas:imax}, steps:[`C_amm=P_el├ù5000=${P}├ù5000=${costoAmm.toFixed(2)}`,`Spesa_eff=min(${(costo_totale||0).toFixed(2)}, ${costoAmm.toFixed(2)})=${costoEff.toFixed(2)}`,`Base=0.65├ù${costoEff.toFixed(2)}=${base.toFixed(2)}`,`Finale=min(${base.toFixed(2)}, ${imax})=${finale.toFixed(2)}`] };
+                return { result: finale, formula:`Itot = 65% × min(Spesa, P_el × 5000€/kWe); Imas=${imax.toLocaleString('it-IT')}€`, variables:{Spesa:costo_totale||0,P_el:P,Imas:imax}, steps:[`C_amm=P_el×5000=${P}×5000=${costoAmm.toFixed(2)}`,`Spesa_eff=min(${(costo_totale||0).toFixed(2)}, ${costoAmm.toFixed(2)})=${costoEff.toFixed(2)}`,`Base=0.65×${costoEff.toFixed(2)}=${base.toFixed(2)}`,`Finale=min(${base.toFixed(2)}, ${imax})=${finale.toFixed(2)}`] };
             }
         }
     },
 
-    // Definizione delle premialit├á e maggiorazioni
+    // Definizione delle premialità e maggiorazioni
     premiums: {
         'multi-intervento': {
             name: 'Maggiorazione multi-intervento',
@@ -1494,10 +1494,10 @@ const calculatorData = {
         },
         'diagnosi-energetica': {
             name: 'Diagnosi energetica e certificazione',
-            description: 'Premio aggiuntivo fisso di Ôé¼1.000 per diagnosi energetica certificata e APE',
+            description: 'Premio aggiuntivo fisso di €1.000 per diagnosi energetica certificata e APE',
             scope: 'global',
             type: 'fixed',
-            value: 1000, // Ôé¼ fissi
+            value: 1000, // € fissi
             applicableToInterventions: ['all'],
             requiresDocumentation: 'Diagnosi energetica e Attestato di Prestazione Energetica (APE)',
             isApplicable: () => true
@@ -1517,11 +1517,11 @@ const calculatorData = {
     },
 
     /**
-     * Calcola l'incentivo totale per pi├╣ interventi combinati
+     * Calcola l'incentivo totale per più interventi combinati
      * @param {Array} selectedInterventions - Array di ID interventi selezionati
      * @param {Object} inputsByIntervention - Oggetto con parametri per ogni intervento { interventionId: params }
      * @param {String} operatorType - Tipo di operatore (pa, private_tertiary, private_residential)
-     * @param {Array} globalPremiums - Array di ID premialit├á globali selezionate
+     * @param {Array} globalPremiums - Array di ID premialità globali selezionate
      * @param {Object} contextData - Dati di contesto aggiuntivi: { buildingSubcategory, popolazione_comune, subjectType }
      * @returns {Object} - { total, details: [{id, name, baseIncentive, appliedPremiums, finalIncentive}], appliedGlobalPremiums }
      */
@@ -1534,12 +1534,12 @@ const calculatorData = {
         const isArt48ter = contextData.buildingSubcategory && 
                           ['tertiary_school', 'tertiary_hospital', 'tertiary_prison'].includes(contextData.buildingSubcategory);
         
-        // 2. Comuni < 15.000 abitanti - SOLO per Comuni con intervento diretto su edificio di propriet├á e utilizzo comunale
+        // 2. Comuni < 15.000 abitanti - SOLO per Comuni con intervento diretto su edificio di proprietà e utilizzo comunale
         // Requisiti cumulativi:
         // - Deve essere un Comune (non altra PA)
-        // - Edificio di propriet├á E utilizzato dal Comune
+        // - Edificio di proprietà E utilizzato dal Comune
         // - Popolazione < 15.000 abitanti
-        // - Modalit├á: intervento diretto
+        // - Modalità: intervento diretto
         const isPiccoloComune = contextData.is_comune === true && 
                                contextData.is_edificio_comunale === true &&
                                contextData.is_piccolo_comune === true &&
@@ -1549,7 +1549,7 @@ const calculatorData = {
         const hasIncentivo100 = isArt48ter || isPiccoloComune;
 
         if (hasIncentivo100) {
-            // Modalit├á speciale: incentivo = 100% spesa sostenuta, max = Imas calcolato
+            // Modalità speciale: incentivo = 100% spesa sostenuta, max = Imas calcolato
             let totalCost = 0;
             let totalImas = 0;
 
@@ -1575,7 +1575,7 @@ const calculatorData = {
                 // Se non specificato, prova a calcolarlo dai parametri specifici
                 if (!costInput) {
                     if (params.superficie && params.costo_specifico) {
-                        // Per isolamento, infissi, ecc.: superficie ├ù costo
+                        // Per isolamento, infissi, ecc.: superficie × costo
                         costInput = params.superficie * params.costo_specifico;
                     } else if (params.potenza_contrattuale && params.costo_totale) {
                         // Per teleriscaldamento
@@ -1628,7 +1628,7 @@ const calculatorData = {
                         value: incentivo100 
                     }],
                     finalIncentive: incentivo100,
-                    note: `100% spesa (Ôé¼${costInput.toLocaleString('it-IT')}), max Imas Ôé¼${imas.toLocaleString('it-IT')}`
+                    note: `100% spesa (€${costInput.toLocaleString('it-IT')}), max Imas €${imas.toLocaleString('it-IT')}`
                 });
 
                 sumBaseIncentives += incentivo100;
@@ -1641,9 +1641,9 @@ const calculatorData = {
                     'tertiary_hospital': 'struttura ospedaliera/sanitaria pubblica',
                     'tertiary_prison': 'struttura penitenziaria'
                 };
-                premiumNote = `Art. 48-ter applicato automaticamente per ${buildingNames[contextData.buildingSubcategory]}. Incentivo al 100% della spesa ammissibile (totale spesa: Ôé¼${totalCost.toLocaleString('it-IT')}, tetto massimo: Ôé¼${totalImas.toLocaleString('it-IT')})`;
+                premiumNote = `Art. 48-ter applicato automaticamente per ${buildingNames[contextData.buildingSubcategory]}. Incentivo al 100% della spesa ammissibile (totale spesa: €${totalCost.toLocaleString('it-IT')}, tetto massimo: €${totalImas.toLocaleString('it-IT')})`;
             } else if (isPiccoloComune) {
-                premiumNote = `Maggiorazione per Comune sotto 15.000 abitanti applicata. L'edificio ├¿ di propriet├á ed utilizzato dal Comune, con intervento diretto. Incentivo al 100% della spesa ammissibile (totale spesa: Ôé¼${totalCost.toLocaleString('it-IT')}, tetto massimo: Ôé¼${totalImas.toLocaleString('it-IT')}). Dovrai attestare queste condizioni nella richiesta al GSE.`;
+                premiumNote = `Maggiorazione per Comune sotto 15.000 abitanti applicata. L'edificio è di proprietà ed utilizzato dal Comune, con intervento diretto. Incentivo al 100% della spesa ammissibile (totale spesa: €${totalCost.toLocaleString('it-IT')}, tetto massimo: €${totalImas.toLocaleString('it-IT')}). Dovrai attestare queste condizioni nella richiesta al GSE.`;
             }
 
             return {
@@ -1662,7 +1662,7 @@ const calculatorData = {
             };
         }
 
-        // MODALIT├Ç STANDARD (senza incentivo al 100%)
+        // MODALITÀ STANDARD (senza incentivo al 100%)
         // 1. Calcola incentivo base per ogni intervento
         selectedInterventions.forEach(intId => {
             const intervention = this.interventions[intId];
@@ -1681,7 +1681,7 @@ const calculatorData = {
             const params = inputsByIntervention[intId] || {};
             const perInterventionPremiums = (params && params.premiums) ? { ...params.premiums } : {};
             
-            // Calcola incentivo base (senza premialit├á globali)
+            // Calcola incentivo base (senza premialità globali)
             let baseIncentive = 0;
             try {
                 baseIncentive = intervention.calculate(params, operatorType);
@@ -1697,17 +1697,17 @@ const calculatorData = {
                 return;
             }
 
-            // Applica premialit├á specifiche dell'intervento (gi├á incluse nel calculate)
+            // Applica premialità specifiche dell'intervento (già incluse nel calculate)
             const appliedPremiums = [];
             let finalIncentive = baseIncentive;
 
             // Applica eventuali premi per-intervento dichiarati in calculatorData.premiums
-            // Evita doppio conteggio per 'prodotti-ue' che ├¿ integrato nelle singole formule Art. 5
+            // Evita doppio conteggio per 'prodotti-ue' che è integrato nelle singole formule Art. 5
             for (const [premId, premData] of Object.entries(this.premiums)) {
                 if (premData.scope !== 'per-intervention') continue;
-                if (premId === 'prodotti-ue') continue; // Prodotti UE gi├á integrato nelle formule
+                if (premId === 'prodotti-ue') continue; // Prodotti UE già integrato nelle formule
                 
-                // Per multi-intervento: ├¿ AUTOMATICO (non richiede selezione utente)
+                // Per multi-intervento: è AUTOMATICO (non richiede selezione utente)
                 if (premId === 'multi-intervento') {
                     // Verifica se la combinazione di interventi soddisfa i requisiti (Titolo II + Titolo III)
                     const isApplicableToCombination = premData.isApplicable(selectedInterventions);
@@ -1757,11 +1757,11 @@ const calculatorData = {
             sumBaseIncentives += finalIncentive;
         });
 
-        // 2. Applica premialit├á globali sulla somma
+        // 2. Applica premialità globali sulla somma
         let totalIncentive = sumBaseIncentives;
         const appliedGlobalPremiums = [];
 
-        // Verifica se il premio multi-intervento ├¿ stato applicato (per mostrarlo nei global premiums)
+        // Verifica se il premio multi-intervento è stato applicato (per mostrarlo nei global premiums)
         let multiInterventoTotalBonus = 0;
         details.forEach(detail => {
             const multiPremium = detail.appliedPremiums?.find(p => p.id === 'multi-intervento');
@@ -1772,7 +1772,7 @@ const calculatorData = {
         if (multiInterventoTotalBonus > 0) {
             appliedGlobalPremiums.push({
                 id: 'multi-intervento',
-                name: 'Multi-intervento (dal 25% al 30%) - gi├á applicato agli interventi Titolo II',
+                name: 'Multi-intervento (dal 25% al 30%) - già applicato agli interventi Titolo II',
                 value: multiInterventoTotalBonus
             });
         }
@@ -1788,7 +1788,7 @@ const calculatorData = {
             });
         }
 
-        // Diagnosi energetica: +1000Ôé¼ fissi
+        // Diagnosi energetica: +1000€ fissi
         if (globalPremiums.includes('diagnosi-energetica')) {
             totalIncentive += 1000;
             appliedGlobalPremiums.push({
@@ -1801,11 +1801,11 @@ const calculatorData = {
         // 3. Verifica tetti massimi
         // Tetto generale per soggetto e per intervento (varia in base al tipo)
         const maxIncentiveByOperator = {
-            'pa': 5000000, // 5MÔé¼ per PA
-            'private_tertiary_person': 2000000, // 2MÔé¼ per privati terziario (non imprese)
-            'private_tertiary_sme': 2000000, // 2MÔé¼ per PMI ed ETS economici
-            'private_tertiary_large': 2000000, // 2MÔé¼ per grandi imprese
-            'private_residential': 1000000 // 1MÔé¼ per privati residenziale
+            'pa': 5000000, // 5M€ per PA
+            'private_tertiary_person': 2000000, // 2M€ per privati terziario (non imprese)
+            'private_tertiary_sme': 2000000, // 2M€ per PMI ed ETS economici
+            'private_tertiary_large': 2000000, // 2M€ per grandi imprese
+            'private_residential': 1000000 // 1M€ per privati residenziale
         };
 
         const cappedTotal = Math.min(totalIncentive, maxIncentiveByOperator[operatorType] || 2000000);

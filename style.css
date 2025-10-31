@@ -1,9 +1,9 @@
-﻿/* --- Stile Ispirato a GSE.it --- */
+/* --- Stile Ispirato a GSE.it --- */
 
 :root {
     --gse-blue: #004c8c; /* Blu primario GSE */
     --gse-light-blue: #e8f1f7; /* Blu chiaro per sfondi o dettagli */
-    --gse-accent: #007bff; /* Un blu pi├╣ brillante per l'interazione */
+    --gse-accent: #007bff; /* Un blu più brillante per l'interazione */
     --text-primary: #333333;
     --text-secondary: #555555;
     --background-color: #f5f8fa;
@@ -476,7 +476,7 @@ input.invalid:focus, select.invalid:focus {
         color: #666;
     }
     
-    /* Migliora leggibilit├á tabelle */
+    /* Migliora leggibilità tabelle */
     .vars-table {
         border: 1px solid #000;
     }
@@ -492,7 +492,7 @@ input.invalid:focus, select.invalid:focus {
         border: 1px solid #000;
     }
     
-    /* Formule pi├╣ evidenti */
+    /* Formule più evidenti */
     .formula {
         border-left: 4px solid #000;
         background: #f5f5f5;

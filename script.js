@@ -1,15 +1,15 @@
-﻿// Funzione di inizializzazione principale
+// Funzione di inizializzazione principale
 async function initCalculator() {
     // Attendi che WASM sia caricato (se disponibile)
     if (typeof loadWASM === 'function') {
         const wasmLoaded = await loadWASM();
         if (wasmLoaded) {
-            console.log('Ô£à Calcoli con WASM attivati');
+            console.log('✅ Calcoli con WASM attivati');
         } else {
-            console.log('ÔÜá´©Å  Usando calcoli JavaScript (WASM non disponibile)');
+            console.log('⚠️  Usando calcoli JavaScript (WASM non disponibile)');
         }
     } else {
-        console.log('Ôä╣´©Å  Usando calcoli JavaScript (loader WASM non trovato)');
+        console.log('ℹ️  Usando calcoli JavaScript (loader WASM non trovato)');
     }
 
     // Elementi DOM per i 3 step
@@ -68,7 +68,7 @@ async function initCalculator() {
     }
 
     function populateImplementationModes() {
-        implementationModeSelect.innerHTML = '<option value="" disabled selected>Seleziona la modalit├á...</option>';
+        implementationModeSelect.innerHTML = '<option value="" disabled selected>Seleziona la modalità...</option>';
         
         calculatorData.implementationModes.forEach(mode => {
             const option = document.createElement('option');
@@ -87,7 +87,7 @@ async function initCalculator() {
             return;
         }
 
-        // Memorizza la sottocategoria se ├¿ una sottocategoria terziario
+        // Memorizza la sottocategoria se è una sottocategoria terziario
         if (['tertiary_generic', 'tertiary_school', 'tertiary_hospital', 'tertiary_prison'].includes(state.selectedBuilding)) {
             state.buildingSubcategory = state.selectedBuilding;
         } else {
@@ -98,7 +98,7 @@ async function initCalculator() {
         let matrixKey = `${state.selectedSubject}_${state.selectedBuilding}`;
         let mapping = calculatorData.operatorMatrix[matrixKey];
         
-        // Se non trovato e ├¿ una sottocategoria, prova con la categoria principale
+        // Se non trovato e è una sottocategoria, prova con la categoria principale
         if (!mapping && state.buildingSubcategory) {
             matrixKey = `${state.selectedSubject}_tertiary`;
             mapping = calculatorData.operatorMatrix[matrixKey];
@@ -106,18 +106,18 @@ async function initCalculator() {
         
         if (mapping) {
             state.selectedOperator = mapping.operatorTypeId;
-            console.log(`Ô£à Mappatura: ${matrixKey} ÔåÆ ${state.selectedOperator}` + 
+            console.log(`✅ Mappatura: ${matrixKey} → ${state.selectedOperator}` + 
                        (state.buildingSubcategory ? ` (sottocategoria: ${state.buildingSubcategory})` : ''));
         } else {
             state.selectedOperator = '';
             state.buildingSubcategory = '';
-            console.warn(`ÔÜá´©Å  Nessuna mappatura trovata per: ${matrixKey}`);
+            console.warn(`⚠️  Nessuna mappatura trovata per: ${matrixKey}`);
         }
     }
 
     function updateImplementationModeOptions() {
         const selectedSubjectId = state.selectedSubject;
-        implementationModeSelect.innerHTML = '<option value="" disabled selected>Seleziona la modalit├á...</option>'; // Pulisci e aggiungi placeholder
+        implementationModeSelect.innerHTML = '<option value="" disabled selected>Seleziona la modalità...</option>'; // Pulisci e aggiungi placeholder
 
         if (!selectedSubjectId) {
             implementationModeGroup.style.display = 'none';
@@ -140,7 +140,7 @@ async function initCalculator() {
                 }
                 implementationModeSelect.appendChild(option);
             });
-            // NON impostiamo pi├╣ automaticamente il valore - l'utente deve scegliere esplicitamente
+            // NON impostiamo più automaticamente il valore - l'utente deve scegliere esplicitamente
             state.selectedMode = ''; // Reset a vuoto
         } else {
             implementationModeGroup.style.display = 'none';
@@ -220,7 +220,7 @@ async function initCalculator() {
                     const row = parseInt(e.target.dataset.rowIndex);
                     const colId = e.target.dataset.columnId;
                     
-                    // Converti in numero se ├¿ un input number
+                    // Converti in numero se è un input number
                     let value = e.target.value;
                     if (e.target.type === 'number') {
                         value = parseFloat(value) || 0;
@@ -239,7 +239,7 @@ async function initCalculator() {
                     const row = parseInt(e.target.dataset.rowIndex);
                     const colId = e.target.dataset.columnId;
                     
-                    // Converti in numero se ├¿ un input number
+                    // Converti in numero se è un input number
                     let value = e.target.value;
                     if (e.target.type === 'number') {
                         value = parseFloat(value) || 0;
@@ -264,7 +264,7 @@ async function initCalculator() {
         
         const deleteBtn = document.createElement('button');
         deleteBtn.type = 'button';
-        deleteBtn.textContent = '­ƒùæ´©Å';
+        deleteBtn.textContent = '🗑️';
         deleteBtn.title = 'Elimina riga';
         deleteBtn.style.padding = '4px 8px';
         deleteBtn.style.cursor = 'pointer';
@@ -333,7 +333,7 @@ async function initCalculator() {
         const mapping = calculatorData.operatorMatrix[matrixKey];
         
         if (!mapping) {
-            interventionsList.innerHTML = '<p class="notice">ÔÜá´©Å Combinazione non valida. Verifica i dati inseriti.</p>';
+            interventionsList.innerHTML = '<p class="notice">⚠️ Combinazione non valida. Verifica i dati inseriti.</p>';
             return;
         }
 
@@ -347,7 +347,7 @@ async function initCalculator() {
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm1 15H9v-2h2v2zm0-4H9V5h2v6z"/>
                         </svg>
-                        ÔÜá´©Å Attenzione: Requisito normativo
+                        ⚠️ Attenzione: Requisito normativo
                     </h4>
                     <p style="margin: 0; color: #663c00; line-height: 1.6;">
                         ${mapping.note}
@@ -429,14 +429,14 @@ async function initCalculator() {
     }
 
     function populatePremiums() {
-        // Mostra SOLO le premialit├á di tipo globale applicabili al contesto corrente
+        // Mostra SOLO le premialità di tipo globale applicabili al contesto corrente
         premiumsList.innerHTML = '';
         
         let hasAnyPremium = false;
         for (const [id, data] of Object.entries(calculatorData.premiums)) {
             if (data.scope !== 'global') continue;
             if (id === 'multi-intervento') continue; // Multi-intervento non selezionabile
-            // Verifica se la premialit├á ├¿ applicabile al contesto corrente
+            // Verifica se la premialità è applicabile al contesto corrente
             const isApplicable = data.isApplicable(
                 state.selectedInterventions, 
                 state.inputValues, 
@@ -447,7 +447,7 @@ async function initCalculator() {
             const div = document.createElement('div');
             div.className = 'premium';
             
-            // Stile speciale per premialit├á override-100
+            // Stile speciale per premialità override-100
             if (data.type === 'override-100') {
                 div.style.backgroundColor = '#e3f2fd';
                 div.style.border = '2px solid #1976d2';
@@ -468,7 +468,7 @@ async function initCalculator() {
         }
         
         if (!hasAnyPremium) {
-            premiumsList.innerHTML = '<p class="notice">Nessuna premialit├á globale applicabile al contesto attuale.</p>';
+            premiumsList.innerHTML = '<p class="notice">Nessuna premialità globale applicabile al contesto attuale.</p>';
         }
     }
 
@@ -488,10 +488,10 @@ async function initCalculator() {
             // Filtra categorie immobile ammissibili per questo soggetto
             updateBuildingCategoryOptions();
             
-            // Filtra le modalit├á di realizzazione
+            // Filtra le modalità di realizzazione
             updateImplementationModeOptions();
             
-            // Rimuovi i campi specifici se cambio soggetto (potrebbero non essere pi├╣ pertinenti)
+            // Rimuovi i campi specifici se cambio soggetto (potrebbero non essere più pertinenti)
             renderImplementationModeFields();
             
             // Mostra campi specifici del soggetto (es. popolazione comune per PA)
@@ -516,15 +516,15 @@ async function initCalculator() {
             // Mostra step 3 (se ci sono opzioni)
             updateImplementationModeOptions();
             
-            // Aggiorna interventi e premialit├á
+            // Aggiorna interventi e premialità
             renderInterventions();
             populatePremiums();
         });
 
-        // Step 3: Modalit├á di realizzazione (opzionale, solo informativo)
+        // Step 3: Modalità di realizzazione (opzionale, solo informativo)
         implementationModeSelect.addEventListener('change', (e) => {
             state.selectedMode = e.target.value;
-            // Renderizza i campi specifici per modalit├á + soggetto
+            // Renderizza i campi specifici per modalità + soggetto
             renderImplementationModeFields();
         });
 
@@ -620,9 +620,9 @@ async function initCalculator() {
             if (isPAorETSnonEcon) {
                 buildingNoteDiv.style.display = 'block';
                 buildingNoteDiv.innerHTML = `
-                    <strong>Ôä╣´©Å Nota per PA/ETS:</strong> Su edifici residenziali sono ammessi:<br>
-                    ÔÇó <strong>Titolo III</strong> (fonti rinnovabili): sempre<br>
-                    ÔÇó <strong>Titolo II</strong> (efficienza energetica): solo su edifici di <strong>propriet├á pubblica</strong> (es. ex IACP/ATER su edilizia sociale)
+                    <strong>ℹ️ Nota per PA/ETS:</strong> Su edifici residenziali sono ammessi:<br>
+                    • <strong>Titolo III</strong> (fonti rinnovabili): sempre<br>
+                    • <strong>Titolo II</strong> (efficienza energetica): solo su edifici di <strong>proprietà pubblica</strong> (es. ex IACP/ATER su edilizia sociale)
                 `;
             } else {
                 buildingNoteDiv.style.display = 'none';
@@ -719,7 +719,7 @@ async function initCalculator() {
                 const conditionValue = field.visible_if.value;
                 const currentValue = state.subjectSpecificData[conditionField];
                 
-                // Se la condizione non ├¿ soddisfatta, salta questo campo
+                // Se la condizione non è soddisfatta, salta questo campo
                 if (currentValue !== conditionValue) {
                     return;
                 }
@@ -747,7 +747,7 @@ async function initCalculator() {
                     state.subjectSpecificData[field.id] = e.target.checked;
                     console.log(`Aggiornato ${field.id}:`, e.target.checked);
                     
-                    // Se questo campo controlla la visibilit├á di altri, ri-renderizza
+                    // Se questo campo controlla la visibilità di altri, ri-renderizza
                     if (field.shows && field.shows.length > 0) {
                         renderSubjectSpecificFields();
                     }
@@ -815,25 +815,25 @@ async function initCalculator() {
     }
 
     function renderImplementationModeFields() {
-        // Determina la chiave per i campi specifici: soggetto_modalit├á
+        // Determina la chiave per i campi specifici: soggetto_modalità
         const fieldKey = `${state.selectedSubject}_${state.selectedMode}`;
         const modeFields = calculatorData.implementationModeFields?.[fieldKey];
         
-        console.log(`­ƒöì renderImplementationModeFields: fieldKey="${fieldKey}", ha campi:`, !!modeFields);
+        console.log(`🔍 renderImplementationModeFields: fieldKey="${fieldKey}", ha campi:`, !!modeFields);
         
         // Rimuovi contenitore esistente se presente
         const existingContainer = document.getElementById('implementation-mode-fields');
         if (existingContainer) {
             existingContainer.remove();
-            console.log(`­ƒùæ´©Å  Container rimosso`);
+            console.log(`🗑️  Container rimosso`);
         }
 
         if (!modeFields || modeFields.length === 0) {
-            console.log(`Ô£à Nessun campo da mostrare per ${fieldKey}`);
+            console.log(`✅ Nessun campo da mostrare per ${fieldKey}`);
             return;
         }
 
-        console.log(`­ƒôï Creazione campi per ${fieldKey}:`, modeFields.length, 'campi');
+        console.log(`📋 Creazione campi per ${fieldKey}:`, modeFields.length, 'campi');
         
         // Crea una sezione dedicata dopo il gruppo implementation-mode
         const fieldsContainer = document.createElement('div');
@@ -849,7 +849,7 @@ async function initCalculator() {
         const modeGroup = document.getElementById('implementation-mode-group');
         modeGroup.parentNode.insertBefore(fieldsContainer, modeGroup.nextSibling);
 
-        fieldsContainer.innerHTML = '<h4 style="margin: 0 0 16px 0; color: #e65100;">­ƒôï Verifica requisiti maggiorazione</h4>';
+        fieldsContainer.innerHTML = '<h4 style="margin: 0 0 16px 0; color: #e65100;">📋 Verifica requisiti maggiorazione</h4>';
 
         modeFields.forEach(field => {
             // Verifica se il campo deve essere visibile in base alle condizioni
@@ -885,7 +885,7 @@ async function initCalculator() {
                     state.subjectSpecificData[field.id] = e.target.checked;
                     console.log(`Aggiornato ${field.id}:`, e.target.checked);
                     
-                    // Se questo campo controlla la visibilit├á di altri, ri-renderizza
+                    // Se questo campo controlla la visibilità di altri, ri-renderizza
                     if (field.shows && field.shows.length > 0) {
                         renderImplementationModeFields();
                     }
@@ -947,7 +947,7 @@ async function initCalculator() {
             title.textContent = interventionData.name;
             groupDiv.appendChild(title);
 
-            // Inizializza solo se non esiste gi├á
+            // Inizializza solo se non esiste già
             if (!state.inputValues[intId]) {
                 state.inputValues[intId] = { premiums: {} };
             }
@@ -1034,7 +1034,7 @@ async function initCalculator() {
                     }
                     
                     groupDiv.appendChild(inputDiv);
-                    // Per il tipo table, il rendering ├¿ completo, saltiamo il resto
+                    // Per il tipo table, il rendering è completo, saltiamo il resto
                 } else {
                     // Gestione input normali (select, computed, text, number, ecc.)
                     let inputEl;
@@ -1110,13 +1110,13 @@ async function initCalculator() {
             const perPremWrapper = document.createElement('div');
             perPremWrapper.className = 'form-group';
             const perPremTitle = document.createElement('label');
-            perPremTitle.textContent = 'Premialit├á applicabili a questo intervento:';
+            perPremTitle.textContent = 'Premialità applicabili a questo intervento:';
             perPremWrapper.appendChild(perPremTitle);
 
             let hasPerInterventionPrem = false;
             for (const [premId, premData] of Object.entries(calculatorData.premiums)) {
                 if (premData.scope !== 'per-intervention') continue;
-                // Il premio multi-intervento ├¿ applicato automaticamente: non mostrare la checkbox
+                // Il premio multi-intervento è applicato automaticamente: non mostrare la checkbox
                 if (premId === 'multi-intervento') continue;
                 const applicable = premData.applicableToInterventions?.includes('all') || premData.applicableToInterventions?.includes(intId);
                 if (!applicable) continue;
@@ -1129,7 +1129,7 @@ async function initCalculator() {
                 `;
                 perPremWrapper.appendChild(premDiv);
 
-                // Inizializza lo stato solo se non esiste gi├á
+                // Inizializza lo stato solo se non esiste già
                 if (state.inputValues[intId].premiums[premId] === undefined) {
                     state.inputValues[intId].premiums[premId] = false;
                 }
@@ -1159,13 +1159,13 @@ async function initCalculator() {
         });
     }
 
-    // Limiti massimi su input numerici, applicati SOLO dove la norma ├¿ certa
+    // Limiti massimi su input numerici, applicati SOLO dove la norma è certa
     function applyDynamicMaxLimits(intId, groupDiv) {
         // Utility per trovare input dentro il gruppo
         const byId = (fieldId) => groupDiv.querySelector(`#input-${intId}-${fieldId}`);
 
         if (intId === 'sostituzione-infissi') {
-            // Cmax: 700 Ôé¼/m┬▓ (zone A,B,C) | 800 Ôé¼/m┬▓ (zone D,E,F)
+            // Cmax: 700 €/m² (zone A,B,C) | 800 €/m² (zone D,E,F)
             const zonaSel = byId('zona_climatica');
             const costoEl = byId('costo_specifico');
             if (zonaSel && costoEl) {
@@ -1173,7 +1173,7 @@ async function initCalculator() {
                 const cmax = (z === 'D' || z === 'E' || z === 'F') ? 800 : 700;
                 costoEl.max = String(cmax);
                 costoEl.setAttribute('max', String(cmax));
-                costoEl.title = `Valore massimo consentito: ${cmax} Ôé¼/m┬▓ (Regole Applicative)`;
+                costoEl.title = `Valore massimo consentito: ${cmax} €/m² (Regole Applicative)`;
                 costoEl.placeholder = `Max: ${cmax}`;
                 
                 // Aggiungi validazione live
@@ -1182,7 +1182,7 @@ async function initCalculator() {
                     if (val > cmax) {
                         this.style.borderColor = '#d32f2f';
                         this.style.backgroundColor = '#ffebee';
-                        this.setCustomValidity(`Il valore non pu├▓ superare ${cmax} Ôé¼/m┬▓ (limite normativo)`);
+                        this.setCustomValidity(`Il valore non può superare ${cmax} €/m² (limite normativo)`);
                     } else {
                         this.style.borderColor = '';
                         this.style.backgroundColor = '';
@@ -1207,7 +1207,7 @@ async function initCalculator() {
                 if (cmax) {
                     costoEl.max = String(cmax);
                     costoEl.setAttribute('max', String(cmax));
-                    costoEl.title = `Valore massimo consentito: ${cmax} Ôé¼/m┬▓ (Regole Applicative)`;
+                    costoEl.title = `Valore massimo consentito: ${cmax} €/m² (Regole Applicative)`;
                     costoEl.placeholder = `Max: ${cmax}`;
                     
                     // Validazione live
@@ -1223,7 +1223,7 @@ async function initCalculator() {
                         if (currentCmax && val > currentCmax) {
                             this.style.borderColor = '#d32f2f';
                             this.style.backgroundColor = '#ffebee';
-                            this.setCustomValidity(`Il valore non pu├▓ superare ${currentCmax} Ôé¼/m┬▓ (limite normativo)`);
+                            this.setCustomValidity(`Il valore non può superare ${currentCmax} €/m² (limite normativo)`);
                         } else {
                             this.style.borderColor = '';
                             this.style.backgroundColor = '';
@@ -1235,7 +1235,7 @@ async function initCalculator() {
         }
 
         if (intId === 'nzeb') {
-            // Cmax: 1000 Ôé¼/m┬▓ (zone A,B,C) | 1300 Ôé¼/m┬▓ (zone D,E,F)
+            // Cmax: 1000 €/m² (zone A,B,C) | 1300 €/m² (zone D,E,F)
             const zonaSel = byId('zona_climatica');
             const costoEl = byId('costo_specifico');
             if (zonaSel && costoEl) {
@@ -1243,7 +1243,7 @@ async function initCalculator() {
                 const cmax = (z === 'A' || z === 'B' || z === 'C') ? 1000 : 1300;
                 costoEl.max = String(cmax);
                 costoEl.setAttribute('max', String(cmax));
-                costoEl.title = `Valore massimo consentito: ${cmax} Ôé¼/m┬▓ (Regole Applicative)`;
+                costoEl.title = `Valore massimo consentito: ${cmax} €/m² (Regole Applicative)`;
                 costoEl.placeholder = `Max: ${cmax}`;
                 
                 // Validazione live
@@ -1254,7 +1254,7 @@ async function initCalculator() {
                     if (val > currentCmax) {
                         this.style.borderColor = '#d32f2f';
                         this.style.backgroundColor = '#ffebee';
-                        this.setCustomValidity(`Il valore non pu├▓ superare ${currentCmax} Ôé¼/m┬▓ (limite normativo)`);
+                        this.setCustomValidity(`Il valore non può superare ${currentCmax} €/m² (limite normativo)`);
                     } else {
                         this.style.borderColor = '';
                         this.style.backgroundColor = '';
@@ -1265,14 +1265,14 @@ async function initCalculator() {
         }
 
         if (intId === 'illuminazione-led') {
-            // Cmax: 15 Ôé¼/m┬▓ (alta efficienza) | 35 Ôé¼/m┬▓ (LED)
+            // Cmax: 15 €/m² (alta efficienza) | 35 €/m² (LED)
             const tipoSel = byId('tipo_lampada');
             const costoEl = byId('costo_specifico');
             if (tipoSel && costoEl) {
                 const cmax = (tipoSel.value === 'Alta efficienza') ? 15 : 35;
                 costoEl.max = String(cmax);
                 costoEl.setAttribute('max', String(cmax));
-                costoEl.title = `Valore massimo consentito: ${cmax} Ôé¼/m┬▓ (Regole Applicative)`;
+                costoEl.title = `Valore massimo consentito: ${cmax} €/m² (Regole Applicative)`;
                 costoEl.placeholder = `Max: ${cmax}`;
                 
                 // Validazione live
@@ -1282,7 +1282,7 @@ async function initCalculator() {
                     if (val > currentCmax) {
                         this.style.borderColor = '#d32f2f';
                         this.style.backgroundColor = '#ffebee';
-                        this.setCustomValidity(`Il valore non pu├▓ superare ${currentCmax} Ôé¼/m┬▓ (limite normativo)`);
+                        this.setCustomValidity(`Il valore non può superare ${currentCmax} €/m² (limite normativo)`);
                     } else {
                         this.style.borderColor = '';
                         this.style.backgroundColor = '';
@@ -1293,13 +1293,13 @@ async function initCalculator() {
         }
 
         if (intId === 'building-automation') {
-            // Cmax: 60 Ôé¼/m┬▓
+            // Cmax: 60 €/m²
             const costoEl = byId('costo_specifico');
             if (costoEl) {
                 const cmax = 60;
                 costoEl.max = String(cmax);
                 costoEl.setAttribute('max', String(cmax));
-                costoEl.title = `Valore massimo consentito: ${cmax} Ôé¼/m┬▓ (Regole Applicative)`;
+                costoEl.title = `Valore massimo consentito: ${cmax} €/m² (Regole Applicative)`;
                 costoEl.placeholder = `Max: ${cmax}`;
                 
                 // Validazione live
@@ -1308,7 +1308,7 @@ async function initCalculator() {
                     if (val > cmax) {
                         this.style.borderColor = '#d32f2f';
                         this.style.backgroundColor = '#ffebee';
-                        this.setCustomValidity(`Il valore non pu├▓ superare ${cmax} Ôé¼/m┬▓ (limite normativo)`);
+                        this.setCustomValidity(`Il valore non può superare ${cmax} €/m² (limite normativo)`);
                     } else {
                         this.style.borderColor = '';
                         this.style.backgroundColor = '';
@@ -1340,8 +1340,8 @@ async function initCalculator() {
                 if (maxCost) {
                     costoTot.max = String(Math.max(0, Math.round(maxCost)));
                     costoTot.setAttribute('max', String(Math.max(0, Math.round(maxCost))));
-                    costoTot.title = `Spesa massima ammissibile: ${Math.round(maxCost).toLocaleString('it-IT')} Ôé¼ (Regole Applicative)`;
-                    costoTot.placeholder = `Max: ${Math.round(maxCost).toLocaleString('it-IT')} Ôé¼`;
+                    costoTot.title = `Spesa massima ammissibile: ${Math.round(maxCost).toLocaleString('it-IT')} € (Regole Applicative)`;
+                    costoTot.placeholder = `Max: ${Math.round(maxCost).toLocaleString('it-IT')} €`;
                     
                     // Validazione live
                     costoTot.addEventListener('input', function() {
@@ -1362,7 +1362,7 @@ async function initCalculator() {
                         if (currentMaxCost && val > currentMaxCost) {
                             this.style.borderColor = '#d32f2f';
                             this.style.backgroundColor = '#ffebee';
-                            this.setCustomValidity(`La spesa non pu├▓ superare ${Math.round(currentMaxCost).toLocaleString('it-IT')} Ôé¼ (limite normativo)`);
+                            this.setCustomValidity(`La spesa non può superare ${Math.round(currentMaxCost).toLocaleString('it-IT')} € (limite normativo)`);
                         } else {
                             this.style.borderColor = '';
                             this.style.backgroundColor = '';
@@ -1378,7 +1378,7 @@ async function initCalculator() {
         const { intervention, inputId, rowIndex, columnId } = e.target.dataset || {};
 
         // Se l'evento proviene da una cella di tabella (input con rowIndex/columnId),
-        // lo stato ├¿ gi├á stato aggiornato nei listener della tabella.
+        // lo stato è già stato aggiornato nei listener della tabella.
         // Evitiamo di sovrascrivere l'intero array (es. righe_opache) con un valore scalare.
         if (rowIndex !== undefined && columnId) {
             // Aggiorna solo validazioni o altri effetti collaterali globali.
@@ -1423,7 +1423,7 @@ async function initCalculator() {
     function calculateIncentive() {
         // Verifica che siano completati gli step obbligatori
         if (!state.selectedSubject) {
-            alert('Completa lo Step 1: seleziona chi ha la disponibilit├á dell\'immobile');
+            alert('Completa lo Step 1: seleziona chi ha la disponibilità dell\'immobile');
             return;
         }
         
@@ -1433,7 +1433,7 @@ async function initCalculator() {
         }
         
         if (!state.selectedOperator) {
-            alert('Errore: non ├¿ stato possibile determinare il tipo di operatore. Verifica i dati inseriti.');
+            alert('Errore: non è stato possibile determinare il tipo di operatore. Verifica i dati inseriti.');
             return;
         }
         
@@ -1489,17 +1489,17 @@ async function initCalculator() {
                     const exp = intervention.explain(params, state.selectedOperator) || {};
                     const vars = exp.variables || {};
                     const steps = exp.steps || [];
-                    const formula = exp.formula ? `<div class="formula">­ƒº« Formula: <span>${exp.formula}</span></div>` : '';
+                    const formula = exp.formula ? `<div class="formula">🧮 Formula: <span>${exp.formula}</span></div>` : '';
                     const varsRows = Object.entries(vars).map(([k,v]) => `<tr><td>${k}</td><td>${formatValue(v)}</td></tr>`).join('');
                     const stepsList = steps.length ? `<ol class="steps">${steps.map(s=>`<li>${s}</li>`).join('')}</ol>` : '';
                     const refs = intervention.category === 'Efficienza Energetica' ? ['Art. 5 - Interventi di efficienza energetica'] : ['Art. 8 - Fonti rinnovabili per la produzione di energia termica'];
-                    const refsHtml = `<div class="refs"><strong>Riferimenti:</strong> ${refs.join(' ┬À ')}</div>`;
+                    const refsHtml = `<div class="refs"><strong>Riferimenti:</strong> ${refs.join(' · ')}</div>`;
 
                     // Premi per-intervento applicati
                     let perPremHtml = '';
                     if (detail && detail.appliedPremiums && detail.appliedPremiums.length) {
-                        perPremHtml = `<div class="premi-int"><strong>Premialit├á sull'intervento:</strong> <ul>` +
-                            detail.appliedPremiums.map(p=>`<li>${p.name}: Ôé¼ ${formatMoney(p.value)}</li>`).join('') +
+                        perPremHtml = `<div class="premi-int"><strong>Premialità sull'intervento:</strong> <ul>` +
+                            detail.appliedPremiums.map(p=>`<li>${p.name}: € ${formatMoney(p.value)}</li>`).join('') +
                             `</ul></div>`;
                     }
 
@@ -1520,11 +1520,11 @@ async function initCalculator() {
                 }
             }
 
-            detailsHtml += `<li>Incentivo per "${intervention.name}": <strong>Ôé¼ ${formatMoney(value)}</strong>${explainBlock}</li>`;
+            detailsHtml += `<li>Incentivo per "${intervention.name}": <strong>€ ${formatMoney(value)}</strong>${explainBlock}</li>`;
         });
         detailsHtml += '</ul>';
 
-        // 3. Documentazione richiesta per le premialit├á selezionate
+        // 3. Documentazione richiesta per le premialità selezionate
         const documentationRequired = [];
         state.selectedPremiums.forEach(premId => {
             const premium = calculatorData.premiums[premId];
@@ -1533,7 +1533,7 @@ async function initCalculator() {
             }
         });
         if (documentationRequired.length > 0) {
-            detailsHtml += '<h4>­ƒôï Documentazione Obbligatoria per Premialit├á:</h4>';
+            detailsHtml += '<h4>📋 Documentazione Obbligatoria per Premialità:</h4>';
             detailsHtml += '<ul class="notice">';
             documentationRequired.forEach(doc => {
                 detailsHtml += `<li>${doc}</li>`;
@@ -1542,7 +1542,7 @@ async function initCalculator() {
         }
 
         // 4. Informazioni sui vincoli e sulla documentazione generale
-        detailsHtml += '<h4>ÔÜá´©Å Requisiti Generali:</h4>';
+        detailsHtml += '<h4>⚠️ Requisiti Generali:</h4>';
         detailsHtml += '<ul class="notice">';
         detailsHtml += '<li>Non devono essere percepiti altri incentivi statali sulla medesima spesa</li>';
         detailsHtml += '<li>Gli apparecchi devono essere nuovi o ricondizionati e rispettare i requisiti minimi ecodesign</li>';
@@ -1551,32 +1551,32 @@ async function initCalculator() {
         detailsHtml += '</ul>';
 
         // 4.b Riepilogo premi globali e massimali
-        detailsHtml += '<h4>­ƒÄ» Premi Globali e Massimali:</h4>';
+        detailsHtml += '<h4>🎯 Premi Globali e Massimali:</h4>';
         if (combo.appliedGlobalPremiums && combo.appliedGlobalPremiums.length) {
-            detailsHtml += '<ul>' + combo.appliedGlobalPremiums.map(p=>`<li>${p.name}: <strong>Ôé¼ ${formatMoney(p.value)}</strong></li>`).join('') + '</ul>';
+            detailsHtml += '<ul>' + combo.appliedGlobalPremiums.map(p=>`<li>${p.name}: <strong>€ ${formatMoney(p.value)}</strong></li>`).join('') + '</ul>';
         } else {
-            detailsHtml += '<p class="notice">Nessuna premialit├á globale applicata.</p>';
+            detailsHtml += '<p class="notice">Nessuna premialità globale applicata.</p>';
         }
         if (combo.wasCapped) {
-            detailsHtml += `<p class="notice">Tetto massimo per soggetto applicato: totale originario Ôé¼ ${formatMoney(combo.originalTotal)}, totale dopo cap Ôé¼ ${formatMoney(combo.total)}.</p>`;
+            detailsHtml += `<p class="notice">Tetto massimo per soggetto applicato: totale originario € ${formatMoney(combo.originalTotal)}, totale dopo cap € ${formatMoney(combo.total)}.</p>`;
         }
         
         // 5. Disclaimer legale
         detailsHtml += '<div class="disclaimer">';
-        detailsHtml += '<h4>ÔÜû´©Å Avvertenze Legali</h4>';
+        detailsHtml += '<h4>⚖️ Avvertenze Legali</h4>';
         detailsHtml += '<p><strong>ATTENZIONE:</strong> Il presente simulatore fornisce una <strong>stima indicativa</strong> dell\'incentivo spettante basata sui dati inseriti dall\'utente. ';
-        detailsHtml += 'Il <strong>calcolo definitivo dell\'incentivo</strong> sar├á effettuato dal GSE (Gestore dei Servizi Energetici) in fase di:</p>';
+        detailsHtml += 'Il <strong>calcolo definitivo dell\'incentivo</strong> sarà effettuato dal GSE (Gestore dei Servizi Energetici) in fase di:</p>';
         detailsHtml += '<ul>';
         detailsHtml += '<li>Presentazione della pratica ufficiale</li>';
         detailsHtml += '<li>Istruttoria tecnico-amministrativa</li>';
         detailsHtml += '<li>Verifica della documentazione probatoria</li>';
         detailsHtml += '</ul>';
-        detailsHtml += '<p>Il GSE <strong>non assume alcuna responsabilit├á</strong> per eventuali inesattezze, errori o discrepanze tra i valori stimati dal presente simulatore e gli importi effettivamente riconosciuti. ';
+        detailsHtml += '<p>Il GSE <strong>non assume alcuna responsabilità</strong> per eventuali inesattezze, errori o discrepanze tra i valori stimati dal presente simulatore e gli importi effettivamente riconosciuti. ';
         detailsHtml += 'L\'ammissione all\'incentivo e la determinazione del suo ammontare sono subordinate all\'esito positivo dell\'istruttoria condotta dal GSE secondo i criteri stabiliti dal D.M. Conto Termico 3.0.</p>';
         detailsHtml += '</div>';
 
         // 6. Mostra i risultati
-        incentiveResultEl.textContent = `Ôé¼ ${formatMoney(combo.total)}`;
+        incentiveResultEl.textContent = `€ ${formatMoney(combo.total)}`;
         resultDetailsEl.innerHTML = detailsHtml;
         resultsContainer.style.display = 'block';
 
@@ -1596,16 +1596,16 @@ async function initCalculator() {
     initialize();
 }
 
-// Inizializza quando il DOM ├¿ pronto
+// Inizializza quando il DOM è pronto
 document.addEventListener('DOMContentLoaded', initCalculator);
 
-// Utilit├á formattazione/esportazione
+// Utilità formattazione/esportazione
 function formatMoney(v){
     const n = Number(v)||0; return n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 function formatValue(v){
     if (typeof v === 'number') return formatMoney(v);
-    if (typeof v === 'boolean') return v ? 'S├¼' : 'No';
+    if (typeof v === 'boolean') return v ? 'Sì' : 'No';
     return v;
 }
 function downloadText(content, filename, mime){
@@ -1656,7 +1656,7 @@ function printReport() {
             <h3>SIMULAZIONE CONTO TERMICO 3.0</h3>
             <p><strong>Data simulazione:</strong> ${currentDate}</p>
             <p><em>Documento generato dal Simulatore Conto Termico 3.0<br>
-            Questo ├¿ un calcolo indicativo. Per informazioni ufficiali consultare www.gse.it</em></p>
+            Questo è un calcolo indicativo. Per informazioni ufficiali consultare www.gse.it</em></p>
         </div>
     `;
     

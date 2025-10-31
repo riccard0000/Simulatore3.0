@@ -390,54 +390,49 @@ const calculatorData = {
             allowedOperators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large'],
             restrictionNote: 'SOLO per PA/ETS non economici e Soggetti Privati su edifici TERZIARIO. NO ambito residenziale.',
             inputs: [
-                { 
-                    id: 'tipologia_struttura', 
-                    name: 'Tipologia di struttura opaca', 
-                    type: 'select', 
-                    options: [
-                        { value: 'copertura_esterno', label: 'i. Copertura - Isolamento esterno', cmax: 300 },
-                        { value: 'copertura_interno', label: 'i. Copertura - Isolamento interno', cmax: 150 },
-                        { value: 'copertura_ventilata', label: 'i. Copertura - Copertura ventilata', cmax: 350 },
-                        { value: 'pavimento_esterno', label: 'ii. Pavimento - Isolamento esterno', cmax: 170 },
-                        { value: 'pavimento_interno', label: 'ii. Pavimento - Isolamento interno', cmax: 150 },
-                        { value: 'parete_esterno', label: 'iii. Parete perimetrale - Isolamento esterno', cmax: 200 },
-                        { value: 'parete_interno', label: 'iii. Parete perimetrale - Isolamento interno', cmax: 100 },
-                        { value: 'parete_ventilata', label: 'iii. Parete perimetrale - Parete ventilata', cmax: 250 }
+                {
+                    id: 'righe_opache',
+                    name: 'Tabella strutture opache',
+                    type: 'table',
+                    columns: [
+                        {
+                            id: 'tipologia_struttura',
+                            name: 'Tipologia',
+                            type: 'select',
+                            options: [
+                                { value: 'copertura_esterno', label: 'i. Copertura - Isolamento esterno', cmax: 300 },
+                                { value: 'copertura_interno', label: 'i. Copertura - Isolamento interno', cmax: 150 },
+                                { value: 'copertura_ventilata', label: 'i. Copertura - Copertura ventilata', cmax: 350 },
+                                { value: 'pavimento_esterno', label: 'ii. Pavimento - Isolamento esterno', cmax: 170 },
+                                { value: 'pavimento_interno', label: 'ii. Pavimento - Isolamento interno', cmax: 150 },
+                                { value: 'parete_esterno', label: 'iii. Parete perimetrale - Isolamento esterno', cmax: 200 },
+                                { value: 'parete_interno', label: 'iii. Parete perimetrale - Isolamento interno', cmax: 100 },
+                                { value: 'parete_ventilata', label: 'iii. Parete perimetrale - Parete ventilata', cmax: 250 }
+                            ]
+                        },
+                        {
+                            id: 'superficie',
+                            name: 'Superficie (m²)',
+                            type: 'number',
+                            min: 0
+                        },
+                        {
+                            id: 'costo_totale',
+                            name: 'Costo totale (€)',
+                            type: 'number',
+                            min: 0
+                        },
+                        {
+                            id: 'costo_specifico',
+                            name: 'Costo specifico (€/m²)',
+                            type: 'computed',
+                            compute: (riga) => {
+                                if (!riga.costo_totale || !riga.superficie) return '0.00';
+                                return (riga.costo_totale / riga.superficie).toFixed(2);
+                            }
+                        }
                     ],
-                    help: 'Seleziona il tipo di superficie da isolare e la modalità di intervento'
-                },
-                { 
-                    id: 'costo_totale', 
-                    name: 'Costo totale intervento (€)', 
-                    type: 'number', 
-                    min: 0, 
-                    help: 'Costo complessivo dell\'intervento di isolamento' 
-                },
-                { 
-                    id: 'superficie', 
-                    name: 'Superficie isolata Sint (m²)', 
-                    type: 'number', 
-                    min: 0, 
-                    help: 'Superficie della struttura isolata' 
-                },
-                { 
-                    id: 'costo_specifico', 
-                    name: 'Costo specifico C (€/m²)', 
-                    type: 'computed', 
-                    compute: (params) => {
-                        if (!params.costo_totale || !params.superficie) return '0.00';
-                        const costo = (params.costo_totale / params.superficie).toFixed(2);
-                        
-                        // Trova il Cmax per la tipologia selezionata
-                        const tipologia = params.tipologia_struttura;
-                        const interventionData = calculatorData.interventions['isolamento-opache'];
-                        const tipologiaInput = interventionData.inputs.find(i => i.id === 'tipologia_struttura');
-                        const selectedOption = tipologiaInput?.options.find(opt => opt.value === tipologia);
-                        const cmax = selectedOption?.cmax || 300;
-                        
-                        return costo;
-                    },
-                    help: 'Calcolato automaticamente: Costo totale / Superficie' 
+                    help: 'Inserisci una riga per ogni tipologia di struttura opaca isolata. Puoi aggiungere più tipologie.'
                 },
                 { 
                     id: 'zona_climatica', 
@@ -448,70 +443,95 @@ const calculatorData = {
                 }
             ],
             calculate: (params, operatorType, contextData) => {
-                const { costo_totale, superficie, zona_climatica, tipologia_struttura } = params;
-                if (!superficie || !costo_totale || !tipologia_struttura) return 0;
+                const { righe_opache, zona_climatica } = params;
                 
-                // Trova il Cmax per la tipologia selezionata
-                const interventionData = calculatorData.interventions['isolamento-opache'];
-                const tipologiaInput = interventionData.inputs.find(i => i.id === 'tipologia_struttura');
-                const selectedOption = tipologiaInput?.options.find(opt => opt.value === tipologia_struttura);
-                const cmax = selectedOption?.cmax || 300;
+                // Se non ci sono righe o la zona climatica, return 0
+                if (!righe_opache || !Array.isArray(righe_opache) || righe_opache.length === 0 || !zona_climatica) return 0;
                 
-                // Calcola il costo specifico
-                const costo_specifico = costo_totale / superficie;
-                
-                // Applica il massimale: se supera, usa Cmax, altrimenti usa il costo effettivo
-                const costoEffettivo = Math.min(costo_specifico, cmax);
-                
-                // Alert se supera il massimale (verrà gestito nella UI)
-                if (costo_specifico > cmax) {
-                    console.warn(`⚠️  ATTENZIONE: Costo specifico (${costo_specifico.toFixed(2)} €/m²) supera il massimale ammissibile (${cmax} €/m²). L'incentivo sarà calcolato con il massimale.`);
-                }
+                // Mappa delle tipologie e dei loro Cmax
+                const tipologieOptions = [
+                    { value: 'copertura_esterno', label: 'i. Copertura - Isolamento esterno', cmax: 300 },
+                    { value: 'copertura_interno', label: 'i. Copertura - Isolamento interno', cmax: 150 },
+                    { value: 'copertura_ventilata', label: 'i. Copertura - Copertura ventilata', cmax: 350 },
+                    { value: 'pavimento_esterno', label: 'ii. Pavimento - Isolamento esterno', cmax: 170 },
+                    { value: 'pavimento_interno', label: 'ii. Pavimento - Isolamento interno', cmax: 150 },
+                    { value: 'parete_esterno', label: 'iii. Parete perimetrale - Isolamento esterno', cmax: 200 },
+                    { value: 'parete_interno', label: 'iii. Parete perimetrale - Isolamento interno', cmax: 100 },
+                    { value: 'parete_ventilata', label: 'iii. Parete perimetrale - Parete ventilata', cmax: 250 }
+                ];
                 
                 // Determina la percentuale base
-                // (*) Per zone E e F: 50%
-                // (**) Per interventi combinati: 65% (gestito dalla premialità multi-intervento)
-                // (***) Per edifici pubblici speciali (scuole, ospedali): 100%
+                const isArt48ter = contextData?.art48ter === true;
                 let percentuale = 0.40; // 40% base
                 
-                // Controlla se è edificio speciale (scuole, ospedali, carceri) con Art. 48-ter
-                const isArt48ter = contextData?.art48ter === true;
-                
                 if (operatorType === 'pa' && isArt48ter) {
-                    // 100% per edifici pubblici speciali
-                    percentuale = 1.0;
+                    percentuale = 1.0; // 100% per edifici pubblici speciali
                 } else if (operatorType === 'pa') {
-                    // 65% per PA generiche (edifici non Art. 48-ter)
-                    percentuale = 0.65;
+                    percentuale = 0.65; // 65% per PA generiche
                 } else if (zona_climatica === 'E' || zona_climatica === 'F') {
-                    // 50% per zone climatiche E e F (soggetti privati)
-                    percentuale = 0.50;
+                    percentuale = 0.50; // 50% per zone E/F (soggetti privati)
                 }
                 
-                // Calcolo incentivo base
-                let incentivo = percentuale * costoEffettivo * superficie;
-                
-                // Premio UE (+10%) applicato dentro il tetto
+                // Premio UE (+10%)
                 const ueMultiplier = params?.premiums?.['prodotti-ue'] ? 1.10 : 1.0;
-                incentivo *= ueMultiplier;
                 
-                // Tetto massimo Imas = 1.000.000 € (somma di tutti i tipi i+ii+iii)
+                // Calcola l'incentivo totale sommando tutte le righe
+                let incentivoTotale = 0;
+                
+                righe_opache.forEach(riga => {
+                    const { tipologia_struttura, superficie, costo_totale } = riga;
+                    
+                    if (!tipologia_struttura || !superficie || !costo_totale || superficie <= 0) return;
+                    
+                    // Trova il Cmax per questa tipologia
+                    const tipologiaData = tipologieOptions.find(t => t.value === tipologia_struttura);
+                    const cmax = tipologiaData?.cmax || 300;
+                    
+                    // Calcola costo specifico
+                    const costo_specifico = costo_totale / superficie;
+                    
+                    // Applica il massimale
+                    const costoEffettivo = Math.min(costo_specifico, cmax);
+                    
+                    // Calcola incentivo per questa riga
+                    let incentivoRiga = percentuale * costoEffettivo * superficie;
+                    incentivoRiga *= ueMultiplier;
+                    
+                    incentivoTotale += incentivoRiga;
+                    
+                    // Log per debug
+                    if (costo_specifico > cmax) {
+                        console.warn(`⚠️  Riga ${tipologiaData?.label}: Costo specifico (${costo_specifico.toFixed(2)} €/m²) supera Cmax (${cmax} €/m²)`);
+                    }
+                });
+                
+                // Tetto massimo Imas = 1.000.000 €
                 const tettoMassimo = 1000000;
-                return Math.min(incentivo, tettoMassimo);
+                return Math.min(incentivoTotale, tettoMassimo);
             },
             explain: (params, operatorType, contextData) => {
-                const { costo_totale, superficie, zona_climatica, tipologia_struttura } = params;
+                const { righe_opache, zona_climatica } = params;
                 
-                // Trova il Cmax
-                const interventionData = calculatorData.interventions['isolamento-opache'];
-                const tipologiaInput = interventionData.inputs.find(i => i.id === 'tipologia_struttura');
-                const selectedOption = tipologiaInput?.options.find(opt => opt.value === tipologia_struttura);
-                const cmax = selectedOption?.cmax || 300;
-                const tipologiaLabel = selectedOption?.label || 'Non specificata';
+                if (!righe_opache || !Array.isArray(righe_opache) || righe_opache.length === 0) {
+                    return {
+                        result: 0,
+                        formula: 'Nessuna riga inserita',
+                        variables: {},
+                        steps: ['Inserire almeno una tipologia di struttura opaca']
+                    };
+                }
                 
-                const costo_specifico = costo_totale && superficie ? costo_totale / superficie : 0;
-                const costoEffettivo = Math.min(costo_specifico || 0, cmax);
-                const superaMassimale = costo_specifico > cmax;
+                // Mappa delle tipologie
+                const tipologieOptions = [
+                    { value: 'copertura_esterno', label: 'i. Copertura - Isolamento esterno', cmax: 300 },
+                    { value: 'copertura_interno', label: 'i. Copertura - Isolamento interno', cmax: 150 },
+                    { value: 'copertura_ventilata', label: 'i. Copertura - Copertura ventilata', cmax: 350 },
+                    { value: 'pavimento_esterno', label: 'ii. Pavimento - Isolamento esterno', cmax: 170 },
+                    { value: 'pavimento_interno', label: 'ii. Pavimento - Isolamento interno', cmax: 150 },
+                    { value: 'parete_esterno', label: 'iii. Parete perimetrale - Isolamento esterno', cmax: 200 },
+                    { value: 'parete_interno', label: 'iii. Parete perimetrale - Isolamento interno', cmax: 100 },
+                    { value: 'parete_ventilata', label: 'iii. Parete perimetrale - Parete ventilata', cmax: 250 }
+                ];
                 
                 // Determina percentuale
                 const isArt48ter = contextData?.art48ter === true;
@@ -530,36 +550,63 @@ const calculatorData = {
                 }
                 
                 const ue = params?.premiums?.['prodotti-ue'] ? 1.10 : 1.0;
-                const base = percentuale * costoEffettivo * (superficie || 0);
-                const conUE = base * ue;
+                const steps = [];
+                let incentivoTotale = 0;
+                
+                steps.push(`Zona climatica: ${zona_climatica}`);
+                steps.push(`Percentuale: ${percentualeDesc}`);
+                steps.push(ue > 1 ? `Premio UE: +10%` : `Premio UE: non applicato`);
+                steps.push(`---`);
+                
+                righe_opache.forEach((riga, index) => {
+                    const { tipologia_struttura, superficie, costo_totale } = riga;
+                    
+                    if (!tipologia_struttura || !superficie || !costo_totale || superficie <= 0) {
+                        steps.push(`Riga ${index + 1}: dati incompleti`);
+                        return;
+                    }
+                    
+                    const tipologiaData = tipologieOptions.find(t => t.value === tipologia_struttura);
+                    const cmax = tipologiaData?.cmax || 300;
+                    const tipologiaLabel = tipologiaData?.label || 'Sconosciuta';
+                    
+                    const costo_specifico = costo_totale / superficie;
+                    const costoEffettivo = Math.min(costo_specifico, cmax);
+                    const superaMassimale = costo_specifico > cmax;
+                    
+                    let incentivoRiga = percentuale * costoEffettivo * superficie * ue;
+                    incentivoTotale += incentivoRiga;
+                    
+                    steps.push(`Riga ${index + 1}: ${tipologiaLabel}`);
+                    steps.push(`  Superficie: ${superficie.toFixed(2)} m²`);
+                    steps.push(`  Costo totale: ${costo_totale.toLocaleString('it-IT')} €`);
+                    steps.push(`  C = ${costo_totale.toLocaleString('it-IT')} / ${superficie.toFixed(2)} = ${costo_specifico.toFixed(2)} €/m²`);
+                    steps.push(superaMassimale 
+                        ? `  ⚠️  C supera Cmax! Uso Cmax=${cmax} €/m²` 
+                        : `  ✓ C (${costo_specifico.toFixed(2)}) ≤ Cmax (${cmax})`
+                    );
+                    steps.push(`  Incentivo riga = ${percentuale.toFixed(2)} × ${costoEffettivo.toFixed(2)} × ${superficie.toFixed(2)}${ue > 1 ? ' × 1.10' : ''} = ${incentivoRiga.toLocaleString('it-IT', {minimumFractionDigits: 2})} €`);
+                    steps.push(`---`);
+                });
+                
                 const imas = 1000000;
-                const finale = Math.min(conUE, imas);
+                const finale = Math.min(incentivoTotale, imas);
+                
+                steps.push(`Totale = ${incentivoTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})} €`);
+                steps.push(`Finale = min(${incentivoTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}, ${imas.toLocaleString('it-IT')}) = ${finale.toLocaleString('it-IT', {minimumFractionDigits: 2})} €`);
                 
                 return {
                     result: finale,
-                    formula: `Itot = p × min(C, Cmax) × Sint${ue > 1 ? ' × 1.10 (UE)' : ''}`,
-                    variables: { 
-                        Tipologia: tipologiaLabel,
-                        p: percentuale, 
+                    formula: `Itot = Σ [p × min(Ci, Cmax,i) × Sint,i]${ue > 1 ? ' × 1.10 (UE)' : ''}`,
+                    variables: {
+                        NumeroRighe: righe_opache.length,
+                        p: percentuale,
                         pDesc: percentualeDesc,
-                        CostoTotale: costo_totale || 0,
-                        Sint: superficie || 0,
-                        C: costo_specifico, 
-                        Cmax: cmax,
-                        Ceff: costoEffettivo, 
-                        SuperaMassimale: superaMassimale,
-                        UE: ue > 1, 
-                        Imas: imas 
+                        ZonaClimatica: zona_climatica,
+                        UE: ue > 1,
+                        Imas: imas
                     },
-                    steps: [
-                        `Tipologia: ${tipologiaLabel}`,
-                        `C = ${(costo_totale||0).toLocaleString('it-IT')} € / ${(superficie||0).toFixed(2)} m² = ${costo_specifico.toFixed(2)} €/m²`,
-                        superaMassimale ? `⚠️  C supera Cmax! Uso Cmax=${cmax} €/m²` : `✓ C (${costo_specifico.toFixed(2)}) ≤ Cmax (${cmax})`,
-                        `Percentuale: ${percentualeDesc}`,
-                        `Base = ${percentuale.toFixed(2)} × ${costoEffettivo.toFixed(2)} × ${(superficie||0).toFixed(2)} = ${base.toLocaleString('it-IT', {minimumFractionDigits: 2})} €`,
-                        ue>1 ? `Premio UE: ${base.toLocaleString('it-IT', {minimumFractionDigits: 2})} × 1.10 = ${conUE.toLocaleString('it-IT', {minimumFractionDigits: 2})} €` : `Premio UE: non applicato`,
-                        `Finale = min(${conUE.toLocaleString('it-IT', {minimumFractionDigits: 2})}, ${imas.toLocaleString('it-IT')}) = ${finale.toLocaleString('it-IT', {minimumFractionDigits: 2})} €`
-                    ]
+                    steps
                 };
             }
         },
