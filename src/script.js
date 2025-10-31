@@ -1337,6 +1337,83 @@ async function initCalculator() {
             const puntiEl = byId('numero_punti');
             const potenzaEl = byId('potenza');
             const costoTot = byId('costo_totale');
+            
+            // Imposta limiti max sui campi potenza/punti in base al tipo selezionato
+            if (tipoSel && potenzaEl) {
+                const tipo = tipoSel.value;
+                if (tipo === 'Media (22-50kW)') {
+                    potenzaEl.min = '22';
+                    potenzaEl.max = '50';
+                    potenzaEl.setAttribute('min', '22');
+                    potenzaEl.setAttribute('max', '50');
+                    potenzaEl.title = 'Potenza tra 22 e 50 kW';
+                    potenzaEl.placeholder = 'Min: 22 kW, Max: 50 kW';
+                    potenzaEl.disabled = false;
+                    potenzaEl.required = true;
+                } else if (tipo === 'Alta (50-100kW)') {
+                    potenzaEl.min = '50';
+                    potenzaEl.max = '100';
+                    potenzaEl.setAttribute('min', '50');
+                    potenzaEl.setAttribute('max', '100');
+                    potenzaEl.title = 'Potenza tra 50 e 100 kW';
+                    potenzaEl.placeholder = 'Min: 50 kW, Max: 100 kW';
+                    potenzaEl.disabled = false;
+                    potenzaEl.required = true;
+                } else if (tipo === 'Oltre 100kW') {
+                    potenzaEl.min = '100';
+                    potenzaEl.max = '';
+                    potenzaEl.setAttribute('min', '100');
+                    potenzaEl.removeAttribute('max');
+                    potenzaEl.title = 'Potenza superiore a 100 kW';
+                    potenzaEl.placeholder = 'Min: 100 kW';
+                    potenzaEl.disabled = false;
+                    potenzaEl.required = true;
+                } else {
+                    // Standard monofase/trifase: potenza non usata
+                    potenzaEl.disabled = true;
+                    potenzaEl.required = false;
+                    potenzaEl.value = '';
+                    potenzaEl.placeholder = 'Non applicabile';
+                }
+                
+                // Validazione live su potenza
+                potenzaEl.addEventListener('input', function() {
+                    const val = parseFloat(this.value) || 0;
+                    const minVal = parseFloat(this.min) || 0;
+                    const maxVal = parseFloat(this.max) || Infinity;
+                    if (val < minVal || val > maxVal) {
+                        this.style.borderColor = '#d32f2f';
+                        this.style.backgroundColor = '#ffebee';
+                        if (maxVal === Infinity) {
+                            this.setCustomValidity(`La potenza deve essere almeno ${minVal} kW`);
+                        } else {
+                            this.setCustomValidity(`La potenza deve essere tra ${minVal} e ${maxVal} kW`);
+                        }
+                    } else {
+                        this.style.borderColor = '';
+                        this.style.backgroundColor = '';
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+            
+            // Abilita/disabilita numero_punti in base al tipo
+            if (tipoSel && puntiEl) {
+                const tipo = tipoSel.value;
+                if (tipo === 'Standard monofase (7.4-22kW)' || tipo === 'Standard trifase (7.4-22kW)') {
+                    puntiEl.disabled = false;
+                    puntiEl.required = true;
+                    puntiEl.min = '1';
+                    puntiEl.setAttribute('min', '1');
+                    puntiEl.placeholder = 'Numero punti di ricarica';
+                } else {
+                    puntiEl.disabled = true;
+                    puntiEl.required = false;
+                    puntiEl.value = '';
+                    puntiEl.placeholder = 'Non applicabile';
+                }
+            }
+            
             if (tipoSel && costoTot) {
                 let maxCost;
                 switch (tipoSel.value) {
