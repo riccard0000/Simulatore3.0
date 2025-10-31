@@ -318,6 +318,9 @@ async function initCalculator() {
             // Filtra le modalità di realizzazione
             updateImplementationModeOptions();
             
+            // Rimuovi i campi specifici se cambio soggetto (potrebbero non essere più pertinenti)
+            renderImplementationModeFields();
+            
             // Mostra campi specifici del soggetto (es. popolazione comune per PA)
             renderSubjectSpecificFields();
 
