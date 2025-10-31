@@ -206,6 +206,12 @@ const calculatorData = {
             maxIncentiveRate: 0.65,
             allowedInterventions: 'all_titolo2_and_3'
         },
+        'person_tertiary_generic': {
+            operatorTypeId: 'private_tertiary_person',
+            maxIncentiveRate: 0.65,
+            allowedInterventions: 'all_titolo2_and_3',
+            art48ter: false
+        },
         'sme_residential': {
             operatorTypeId: 'private_residential',
             maxIncentiveRate: 0.50,
@@ -215,6 +221,12 @@ const calculatorData = {
             operatorTypeId: 'private_tertiary_sme',
             maxIncentiveRate: 0.50,
             allowedInterventions: 'all_titolo2_and_3'
+        },
+        'sme_tertiary_generic': {
+            operatorTypeId: 'private_tertiary_sme',
+            maxIncentiveRate: 0.50,
+            allowedInterventions: 'all_titolo2_and_3',
+            art48ter: false
         },
         'large_company_residential': {
             operatorTypeId: 'private_residential',
@@ -226,6 +238,12 @@ const calculatorData = {
             maxIncentiveRate: 0.30,
             allowedInterventions: 'all_titolo2_and_3'
         },
+        'large_company_tertiary_generic': {
+            operatorTypeId: 'private_tertiary_large',
+            maxIncentiveRate: 0.30,
+            allowedInterventions: 'all_titolo2_and_3',
+            art48ter: false
+        },
         'ets_economic_residential': {
             operatorTypeId: 'private_residential',
             maxIncentiveRate: 0.50,
@@ -235,6 +253,12 @@ const calculatorData = {
             operatorTypeId: 'private_tertiary_sme',
             maxIncentiveRate: 0.50,
             allowedInterventions: 'all_titolo2_and_3'
+        },
+        'ets_economic_tertiary_generic': {
+            operatorTypeId: 'private_tertiary_sme',
+            maxIncentiveRate: 0.50,
+            allowedInterventions: 'all_titolo2_and_3',
+            art48ter: false
         }
     },
 
