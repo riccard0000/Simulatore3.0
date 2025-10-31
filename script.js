@@ -348,7 +348,8 @@ async function initCalculator() {
         // Step 3: Modalità di realizzazione (opzionale, solo informativo)
         implementationModeSelect.addEventListener('change', (e) => {
             state.selectedMode = e.target.value;
-            // Questo non influenza i calcoli, solo a scopo informativo
+            // Renderizza i campi specifici per modalità + soggetto
+            renderImplementationModeFields();
         });
 
         interventionsList.addEventListener('change', (e) => {
@@ -634,6 +635,108 @@ async function initCalculator() {
             }
 
             specificFieldsContainer.appendChild(fieldDiv);
+        });
+    }
+
+    function renderImplementationModeFields() {
+        // Determina la chiave per i campi specifici: soggetto_modalità
+        const fieldKey = `${state.selectedSubject}_${state.selectedMode}`;
+        const modeFields = calculatorData.implementationModeFields?.[fieldKey];
+        
+        // Rimuovi contenitore esistente se presente
+        const existingContainer = document.getElementById('implementation-mode-fields');
+        if (existingContainer) {
+            existingContainer.remove();
+        }
+
+        if (!modeFields || modeFields.length === 0) {
+            return;
+        }
+
+        // Crea una sezione dedicata dopo il gruppo implementation-mode
+        const fieldsContainer = document.createElement('div');
+        fieldsContainer.id = 'implementation-mode-fields';
+        fieldsContainer.className = 'form-group';
+        fieldsContainer.style.marginTop = '20px';
+        fieldsContainer.style.padding = '16px';
+        fieldsContainer.style.background = '#fff3e0';
+        fieldsContainer.style.borderRadius = '8px';
+        fieldsContainer.style.border = '2px solid #ff9800';
+        
+        // Inseriscilo dopo il implementation-mode-group
+        const modeGroup = document.getElementById('implementation-mode-group');
+        modeGroup.parentNode.insertBefore(fieldsContainer, modeGroup.nextSibling);
+
+        fieldsContainer.innerHTML = '<h4 style="margin: 0 0 16px 0; color: #e65100;">📋 Verifica requisiti maggiorazione</h4>';
+
+        modeFields.forEach(field => {
+            // Verifica se il campo deve essere visibile in base alle condizioni
+            if (field.visible_if) {
+                const conditionField = field.visible_if.field;
+                const conditionValue = field.visible_if.value;
+                const currentValue = state.subjectSpecificData[conditionField];
+                
+                if (currentValue !== conditionValue) {
+                    return;
+                }
+            }
+
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'form-group';
+            fieldDiv.style.marginBottom = '12px';
+            fieldDiv.id = `field-wrapper-${field.id}`;
+
+            if (field.type === 'checkbox') {
+                const checkboxWrapper = document.createElement('div');
+                checkboxWrapper.style.display = 'flex';
+                checkboxWrapper.style.alignItems = 'flex-start';
+                checkboxWrapper.style.gap = '8px';
+
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.id = `mode-field-${field.id}`;
+                input.name = field.id;
+                input.checked = state.subjectSpecificData[field.id] || false;
+                input.style.marginTop = '4px';
+                
+                input.addEventListener('change', (e) => {
+                    state.subjectSpecificData[field.id] = e.target.checked;
+                    console.log(`Aggiornato ${field.id}:`, e.target.checked);
+                    
+                    // Se questo campo controlla la visibilità di altri, ri-renderizza
+                    if (field.shows && field.shows.length > 0) {
+                        renderImplementationModeFields();
+                    }
+                });
+
+                const labelWrapper = document.createElement('div');
+                labelWrapper.style.flex = '1';
+
+                const label = document.createElement('label');
+                label.htmlFor = input.id;
+                label.textContent = field.name;
+                label.style.cursor = 'pointer';
+                label.style.fontWeight = 'bold';
+                label.style.display = 'block';
+                labelWrapper.appendChild(label);
+
+                if (field.help) {
+                    const help = document.createElement('small');
+                    help.className = 'info-text';
+                    help.textContent = field.help;
+                    help.style.display = 'block';
+                    help.style.marginTop = '4px';
+                    help.style.color = '#666';
+                    help.style.fontSize = '0.9em';
+                    labelWrapper.appendChild(help);
+                }
+
+                checkboxWrapper.appendChild(input);
+                checkboxWrapper.appendChild(labelWrapper);
+                fieldDiv.appendChild(checkboxWrapper);
+            }
+
+            fieldsContainer.appendChild(fieldDiv);
         });
     }
 
@@ -1037,8 +1140,10 @@ async function initCalculator() {
         const contextData = {
             buildingSubcategory: state.buildingSubcategory,
             is_comune: state.subjectSpecificData.is_comune || false,
+            is_edificio_comunale: state.subjectSpecificData.is_edificio_comunale || false,
             is_piccolo_comune: state.subjectSpecificData.is_piccolo_comune || false,
-            subjectType: state.selectedSubject
+            subjectType: state.selectedSubject,
+            implementationMode: state.selectedMode
         };
 
         // 1. Calcolo combinato con gestione automatica di premi globali e massimali
