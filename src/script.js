@@ -788,6 +788,14 @@ async function initCalculator() {
                         option.textContent = opt;
                         inputEl.appendChild(option);
                     });
+                } else if (input.type === 'computed') {
+                    // Campo calcolato automaticamente (readonly)
+                    inputEl = document.createElement('input');
+                    inputEl.type = 'text';
+                    inputEl.readOnly = true;
+                    inputEl.className = 'computed-field';
+                    inputEl.style.backgroundColor = '#f0f0f0';
+                    inputEl.style.cursor = 'not-allowed';
                 } else {
                     inputEl = document.createElement('input');
                     inputEl.type = input.type;
@@ -799,22 +807,35 @@ async function initCalculator() {
                 inputEl.id = `input-${intId}-${input.id}`;
                 inputEl.dataset.intervention = intId;
                 inputEl.dataset.inputId = input.id;
+                
+                // Aggiungi tooltip se presente
+                if (input.help) {
+                    inputEl.title = input.help;
+                }
+                
                 inputDiv.appendChild(inputEl);
                 groupDiv.appendChild(inputDiv);
 
                 // Ripristina il valore salvato se esiste, altrimenti inizializza
-                const savedValue = state.inputValues[intId][input.id];
-                if (savedValue !== undefined && savedValue !== null) {
-                    inputEl.value = savedValue;
+                if (input.type === 'computed') {
+                    // I campi computed vengono aggiornati dinamicamente
+                    const computedValue = input.compute ? input.compute(state.inputValues[intId] || {}) : '';
+                    inputEl.value = computedValue;
+                    state.inputValues[intId][input.id] = computedValue;
                 } else {
-                    state.inputValues[intId][input.id] = inputEl.value || null;
+                    const savedValue = state.inputValues[intId][input.id];
+                    if (savedValue !== undefined && savedValue !== null) {
+                        inputEl.value = savedValue;
+                    } else {
+                        state.inputValues[intId][input.id] = inputEl.value || null;
+                    }
+                    
+                    inputEl.addEventListener('change', handleInputChange);
+                    inputEl.addEventListener('keyup', handleInputChange);
+                    
+                    // Aggiungi classe per campi obbligatori
+                    inputEl.classList.add('required-field');
                 }
-                
-                inputEl.addEventListener('change', handleInputChange);
-                inputEl.addEventListener('keyup', handleInputChange);
-                
-                // Aggiungi classe per campi obbligatori
-                inputEl.classList.add('required-field');
             });
 
             // Sezione premi per-intervento
@@ -1096,8 +1117,28 @@ async function initCalculator() {
         const value = e.target.type === 'number' ? parseFloat(e.target.value) : e.target.value;
         state.inputValues[intervention][inputId] = value;
         
+        // Aggiorna i campi computed per questo intervento
+        updateComputedFields(intervention);
+        
         // Valida in tempo reale
         validateRequiredFields();
+    }
+
+    // Funzione per aggiornare i campi calcolati automaticamente
+    function updateComputedFields(interventionId) {
+        const interventionData = calculatorData.interventions[interventionId];
+        if (!interventionData || !interventionData.inputs) return;
+        
+        interventionData.inputs.forEach(input => {
+            if (input.type === 'computed' && input.compute) {
+                const inputEl = document.getElementById(`input-${interventionId}-${input.id}`);
+                if (inputEl) {
+                    const computedValue = input.compute(state.inputValues[interventionId] || {});
+                    inputEl.value = computedValue;
+                    state.inputValues[interventionId][input.id] = computedValue;
+                }
+            }
+        });
     }
 
     // --- LOGICA DI CALCOLO ---

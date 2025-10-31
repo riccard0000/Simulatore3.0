@@ -368,6 +368,7 @@ const calculatorData = {
             inputs: [
                 { id: 'costo_totale', name: 'Costo totale intervento (€)', type: 'number', min: 0, help: 'Costo complessivo dell\'intervento di isolamento' },
                 { id: 'superficie', name: 'Superficie isolata Sint (m²)', type: 'number', min: 0, help: 'Superficie delle pareti/coperture isolate' },
+                { id: 'costo_specifico', name: 'Costo specifico C (€/m²)', type: 'computed', compute: (params) => params.costo_totale && params.superficie ? (params.costo_totale / params.superficie).toFixed(2) : '0.00', help: 'Calcolato automaticamente: Costo totale / Superficie' },
                 { id: 'zona_climatica', name: 'Zona climatica', type: 'select', options: ['A', 'B', 'C', 'D', 'E', 'F'] }
             ],
             calculate: (params, operatorType) => {
