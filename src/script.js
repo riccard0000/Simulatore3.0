@@ -509,6 +509,10 @@ async function initCalculator() {
         
         if (!specificFields || specificFields.length === 0) {
             // Nessun campo specifico, nascondi la sezione
+            const existingContainer = document.getElementById('subject-specific-fields');
+            if (existingContainer) {
+                existingContainer.remove();
+            }
             return;
         }
 
@@ -532,9 +536,22 @@ async function initCalculator() {
         specificFieldsContainer.innerHTML = '<h4 style="margin: 0 0 16px 0; color: #1976d2;">Dati aggiuntivi</h4>';
 
         specificFields.forEach(field => {
+            // Verifica se il campo deve essere visibile in base alle condizioni
+            if (field.visible_if) {
+                const conditionField = field.visible_if.field;
+                const conditionValue = field.visible_if.value;
+                const currentValue = state.subjectSpecificData[conditionField];
+                
+                // Se la condizione non è soddisfatta, salta questo campo
+                if (currentValue !== conditionValue) {
+                    return;
+                }
+            }
+
             const fieldDiv = document.createElement('div');
             fieldDiv.className = 'form-group';
             fieldDiv.style.marginBottom = '12px';
+            fieldDiv.id = `field-wrapper-${field.id}`;
 
             if (field.type === 'checkbox') {
                 // Gestione checkbox
@@ -552,6 +569,11 @@ async function initCalculator() {
                 input.addEventListener('change', (e) => {
                     state.subjectSpecificData[field.id] = e.target.checked;
                     console.log(`Aggiornato ${field.id}:`, e.target.checked);
+                    
+                    // Se questo campo controlla la visibilità di altri, ri-renderizza
+                    if (field.shows && field.shows.length > 0) {
+                        renderSubjectSpecificFields();
+                    }
                 });
 
                 const label = document.createElement('label');
@@ -1014,6 +1036,7 @@ async function initCalculator() {
         // Prepara dati di contesto per incentivo al 100% automatico
         const contextData = {
             buildingSubcategory: state.buildingSubcategory,
+            is_comune: state.subjectSpecificData.is_comune || false,
             is_piccolo_comune: state.subjectSpecificData.is_piccolo_comune || false,
             subjectType: state.selectedSubject
         };
