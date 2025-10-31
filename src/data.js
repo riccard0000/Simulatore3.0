@@ -366,17 +366,19 @@ const calculatorData = {
                 allowedOperators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large'],
                 restrictionNote: 'SOLO per PA/ETS non economici e Soggetti Privati su edifici TERZIARIO. NO ambito residenziale.',
             inputs: [
-                { id: 'costo_totale', name: 'Costo totale intervento (€) - opzionale', type: 'number', min: 0, help: 'Se non specificato, viene calcolato da superficie × costo specifico' },
-                { id: 'superficie', name: 'Superficie isolata Sint (m²)', type: 'number', min: 0 },
-                { id: 'costo_specifico', name: 'Costo specifico C (€/m²)', type: 'number', min: 0 },
+                { id: 'costo_totale', name: 'Costo totale intervento (€)', type: 'number', min: 0, help: 'Costo complessivo dell\'intervento di isolamento' },
+                { id: 'superficie', name: 'Superficie isolata Sint (m²)', type: 'number', min: 0, help: 'Superficie delle pareti/coperture isolate' },
                 { id: 'zona_climatica', name: 'Zona climatica', type: 'select', options: ['A', 'B', 'C', 'D', 'E', 'F'] }
             ],
             calculate: (params, operatorType) => {
-                const { superficie, costo_specifico, zona_climatica } = params;
-                if (!superficie || !costo_specifico) return 0;
+                const { costo_totale, superficie, zona_climatica } = params;
+                if (!superficie || !costo_totale) return 0;
+                
+                // Calcola automaticamente il costo specifico
+                const costo_specifico = costo_totale / superficie;
                 
                 // Formula: Itot = %spesa × C × Sint, con Itot ≤ Imas
-                // Cmax per strutture opache varia (150-350 €/m²), prendiamo media di 200 €/m²
+                // Cmax per strutture opache = 300 €/m²
                 const costoEffettivo = Math.min(costo_specifico, 300);
                 
                 // Percentuale incentivata: 40% base, 50% per zone E/F, 100% per PA
@@ -399,7 +401,9 @@ const calculatorData = {
                 return Math.min(incentivo, tettoMassimo);
             },
             explain: (params, operatorType) => {
-                const { superficie, costo_specifico, zona_climatica } = params;
+                const { costo_totale, superficie, zona_climatica } = params;
+                // Calcola automaticamente il costo specifico
+                const costo_specifico = costo_totale && superficie ? costo_totale / superficie : 0;
                 const cmax = 300;
                 const costoEffettivo = Math.min(costo_specifico || 0, cmax);
                 let percentuale = 0.40;
@@ -412,11 +416,12 @@ const calculatorData = {
                 const finale = Math.min(conUE, imas);
                 return {
                     result: finale,
-                    formula: `Itot = p × min(C, ${cmax}) × Sint${ue > 1 ? ' × 1.10 (prodotti UE)' : ''}; Imas=${imas.toLocaleString('it-IT')}€`,
-                    variables: { p: percentuale, C: costo_specifico || 0, Ceff: costoEffettivo, Sint: superficie || 0, UE: ue > 1, Imas: imas },
+                    formula: `C = Costo totale / Superficie; Itot = p × min(C, ${cmax}) × Sint${ue > 1 ? ' × 1.10 (prodotti UE)' : ''}; Imas=${imas.toLocaleString('it-IT')}€`,
+                    variables: { p: percentuale, CostoTotale: costo_totale || 0, C: costo_specifico, Ceff: costoEffettivo, Sint: superficie || 0, UE: ue > 1, Imas: imas },
                     steps: [
+                        `C = ${(costo_totale||0).toFixed(2)} / ${(superficie||0).toFixed(2)} = ${costo_specifico.toFixed(2)} €/m²`,
                         `p=${percentuale.toFixed(2)}`,
-                        `Ceff=min(${(costo_specifico||0).toFixed(2)}, ${cmax})=${costoEffettivo.toFixed(2)}`,
+                        `Ceff=min(${costo_specifico.toFixed(2)}, ${cmax})=${costoEffettivo.toFixed(2)}`,
                         `Base=${percentuale.toFixed(2)}×${costoEffettivo.toFixed(2)}×${(superficie||0).toFixed(2)}=${base.toFixed(2)}`,
                         ue>1?`UE: ${base.toFixed(2)}×1.10=${conUE.toFixed(2)}`:`UE: non applicata`,
                         `Finale=min(${conUE.toFixed(2)}, ${imas})=${finale.toFixed(2)}`
