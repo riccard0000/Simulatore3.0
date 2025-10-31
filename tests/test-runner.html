@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Suite - Simulatore CT 3.0</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 { color: #004c8c; }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            background: #fff;
+            border-radius: 4px;
+        }
+        .test-pass { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .test-fail { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+        .test-warn { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+        button {
+            color: white;
+            background: #006bb3;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 5px 15px 0;
+        }
+        button:hover { background: #005a94; }
+        h3 {
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 20px;
+            border-left: 5px solid #004c8c;
+            background: #eef6ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Suite - Simulatore Conto Termico 3.0</h1>
+
+    <h2>Test Automatici</h2>
+    <button onclick="runAllTests()">▶️  Esegui Tutti i Test</button>
+    <button onclick="runWASMComparison()">🔧 Confronta WASM vs JS</button>
+    <button onclick="showFailedOnly()">🔍 Mostra Solo Falliti</button>
+    <button onclick="exportResults()">💾 Esporta Risultati</button>
+    <button onclick="clearResults()">🗑️  Pulisci Risultati</button>
+
+    <div id="summary"></div>
+    <div id="results"></div>
+
+    <div class="test-container">
+        <p>Puoi anche testare manualmente nella console del browser:</p>
+        <pre>
+// Test singolo
+const params = { superficie: 100, costo_specifico: 200, zona_climatica: "E" };
+const result = calculatorData.interventions['isolamento-opache'].calculate(params, 'pa');
+console.log('Risultato:', result);
+        </pre>
+    </div>
+
+    <!-- Carica i moduli necessari -->
+    <script src="../src/data.js"></script>
+    <script src="../src/loader.js"></script>
+    <script src="compare-wasm-js.js"></script>
+
+    <script>
+        // Genera test automaticamente per tutte le combinazioni
+        const testCases = [];
+
+        // Configurazioni base per tipo di intervento + casi di soglia
+        const interventionConfigs = {
+            'isolamento-opache': {
+                baseParams: { superficie: 100, costo_specifico: 200 },
+                hasZone: true,
+                operators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large'],
+                zones: ['A', 'C', 'E', 'F'],
+                premiums: [false, true],
+                thresholdCases: [
+                    { name: 'Cmax-1 (C=299)', params: { superficie: 100, costo_specifico: 299 }, zones: ['C'], operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Cmax (C=300)', params: { superficie: 100, costo_specifico: 300 }, zones: ['C'], operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Cmax+1 (C=301)', params: { superficie: 100, costo_specifico: 301 }, zones: ['C'], operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Imas cap (PA)', params: { superficie: 4000, costo_specifico: 300 }, zones: ['A'], operators: ['pa'], premiums: [false, true] }
+                ]
+            },
+            'sostituzione-infissi': {
+                baseParams: { superficie: 50, costo_specifico: 700 },
+                hasZone: true,
+                operators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large'],
+                zones: ['A', 'D', 'F'],
+                premiums: [false, true],
+                thresholdCases: [
+                    { name: 'Cmax-1 zona C (699)', params: { superficie: 50, costo_specifico: 699 }, zones: ['C'], operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Cmax zona C (700)', params: { superficie: 50, costo_specifico: 700 }, zones: ['C'], operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Cmax+1 zona C (701)', params: { superficie: 50, costo_specifico: 701 }, zones: ['C'], operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Cmax-1 zona E (799)', params: { superficie: 50, costo_specifico: 799 }, zones: ['E'], operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Cmax zona E (800)', params: { superficie: 50, costo_specifico: 800 }, zones: ['E'], operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Cmax+1 zona E (801)', params: { superficie: 50, costo_specifico: 801 }, zones: ['E'], operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] }
+                ]
+            },
+            'schermature-solari': {
+                baseParams: { superficie: 30, costo_specifico: 150 },
+                hasZone: false,
+                operators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large'],
+                premiums: [false, true]
+            },
+            'nzeb': {
+                baseParams: { superficie: 500, costo_specifico: 800, zona_climatica: 'C' },
+                hasZone: false,
+                operators: ['pa'],
+                premiums: [false, true],
+                thresholdCases: [
+                    { name: 'Cmax-1 zona C (999)', params: { superficie: 500, costo_specifico: 999, zona_climatica: 'C' }, operators: ['pa'] },
+                    { name: 'Cmax zona C (1000)', params: { superficie: 500, costo_specifico: 1000, zona_climatica: 'C' }, operators: ['pa'] },
+                    { name: 'Cmax+1 zona C (1001)', params: { superficie: 500, costo_specifico: 1001, zona_climatica: 'C' }, operators: ['pa'] },
+                    { name: 'Cmax zona E (1300)', params: { superficie: 500, costo_specifico: 1300, zona_climatica: 'E' }, operators: ['pa'] },
+                    { name: 'Imas cap (2.5M)', params: { superficie: 3000, costo_specifico: 1000, zona_climatica: 'B' }, operators: ['pa'] },
+                    { name: 'Imas cap (3.0M)', params: { superficie: 3000, costo_specifico: 1300, zona_climatica: 'E' }, operators: ['pa'] }
+                ]
+            },
+            'illuminazione-led': {
+                baseParams: { superficie: 500, costo_specifico: 30, tipo_lampada: 'LED' },
+                hasZone: false,
+                operators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large'],
+                premiums: [false, true],
+                thresholdCases: [
+                    { name: 'LED Cmax-1 (34)', params: { superficie: 1000, costo_specifico: 34, tipo_lampada: 'LED' }, operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'LED Cmax (35)', params: { superficie: 1000, costo_specifico: 35, tipo_lampada: 'LED' }, operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'LED Cmax+1 (36)', params: { superficie: 1000, costo_specifico: 36, tipo_lampada: 'LED' }, operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Alta efficienza Cmax-1 (14)', params: { superficie: 2000, costo_specifico: 14, tipo_lampada: 'Alta efficienza' }, operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Alta efficienza Cmax (15)', params: { superficie: 2000, costo_specifico: 15, tipo_lampada: 'Alta efficienza' }, operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Alta efficienza Cmax+1 (16)', params: { superficie: 2000, costo_specifico: 16, tipo_lampada: 'Alta efficienza' }, operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] }
+                ]
+            },
+            'pompa-calore': {
+                baseParams: { 
+                    tipo_pompa: 'aria/acqua (≤35kW)', 
+                    potenza_nominale: 20, 
+                    scop: 4.5, 
+                    scop_minimo: 4.0 
+                },
+                hasZone: true,
+                operators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large', 'private_residential'],
+                zones: ['C', 'E', 'F'],
+                thresholdCases: [
+                    { name: 'Soglia 35kW', params: { tipo_pompa: 'aria/acqua (≤35kW)', potenza_nominale: 35, scop: 4.2, scop_minimo: 3.8 }, zones: ['C','E'], operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large','private_residential'] },
+                    { name: 'Sopra 35kW', params: { tipo_pompa: 'aria/acqua (>35kW)', potenza_nominale: 36, scop: 4.2, scop_minimo: 3.8 }, zones: ['C','E'], operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large','private_residential'] }
+                ]
+            },
+            'sistemi-ibridi': {
+                baseParams: { 
+                    tipo_sistema: 'PDC aria/acqua + caldaia condensazione',
+                    potenza_pdc: 15,
+                    potenza_caldaia: 25,
+                    scop: 4.2,
+                    scop_minimo: 3.8,
+                    eta_caldaia: 0.94
+                },
+                hasZone: true,
+                operators: ['pa', 'private_tertiary_person', 'private_residential'],
+                zones: ['C', 'E'],
+                thresholdCases: [
+                    { name: 'PDC 35kW', params: { potenza_pdc: 35 }, zones: ['C','E'], operators: ['pa','private_tertiary_person','private_residential'] },
+                    { name: 'PDC >35kW', params: { potenza_pdc: 36 }, zones: ['C','E'], operators: ['pa','private_tertiary_person','private_residential'] }
+                ]
+            },
+            'biomassa': {
+                baseParams: { 
+                    tipo_generatore: 'Caldaia a biomassa',
+                    potenza_nominale: 30,
+                    riduzione_emissioni: 'Dal 20% al 50%',
+                    centrale_teleriscaldamento: 'No'
+                },
+                hasZone: true,
+                operators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large', 'private_residential'],
+                zones: ['D', 'E', 'F'],
+                biomassaStars: [false, true],
+                thresholdCases: [
+                    { name: 'Caldaia 35kW', params: { tipo_generatore: 'Caldaia a biomassa', potenza_nominale: 35, riduzione_emissioni: 'Fino al 20%' }, zones: ['D','F'], operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large','private_residential'] },
+                    { name: 'Caldaia 36kW', params: { tipo_generatore: 'Caldaia a biomassa', potenza_nominale: 36, riduzione_emissioni: 'Fino al 20%' }, zones: ['D','F'], operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large','private_residential'] },
+                    { name: 'Caldaia 500kW', params: { tipo_generatore: 'Caldaia a biomassa', potenza_nominale: 500, riduzione_emissioni: 'Dal 20% al 50%' }, zones: ['E'], operators: ['pa'] },
+                    { name: 'Caldaia 501kW', params: { tipo_generatore: 'Caldaia a biomassa', potenza_nominale: 501, riduzione_emissioni: 'Oltre il 50%' }, zones: ['E'], operators: ['pa'] },
+                    { name: 'Stufa pellet 10kW', params: { tipo_generatore: 'Stufa a pellet', potenza_nominale: 10, riduzione_emissioni: 'Dal 20% al 50%' }, zones: ['D','F'], operators: ['private_residential','private_tertiary_person'] },
+                    { name: 'Centrale TL -20%', params: { tipo_generatore: 'Caldaia a biomassa', potenza_nominale: 50, riduzione_emissioni: 'Dal 20% al 50%', centrale_teleriscaldamento: 'Sì' }, zones: ['E'], operators: ['pa'] }
+                ]
+            },
+            'solare-termico': {
+                baseParams: { 
+                    superficie_lorda: 10,
+                    tipo_impianto: 'Produzione ACS',
+                    tipo_collettore: 'Piani vetrati'
+                },
+                hasZone: false,
+                operators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large', 'private_residential'],
+                thresholdCases: [
+                    { name: 'Sl 11.9 (<12)', params: { superficie_lorda: 11.9, tipo_impianto: 'Produzione ACS', tipo_collettore: 'Piani vetrati' }, operators: ['pa','private_residential','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Sl 12 (>=12)', params: { superficie_lorda: 12, tipo_impianto: 'Produzione ACS', tipo_collettore: 'Piani vetrati' }, operators: ['pa','private_residential','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Sl 49.9 (<50)', params: { superficie_lorda: 49.9, tipo_impianto: 'Produzione ACS + riscaldamento', tipo_collettore: 'Sottovuoto' }, operators: ['pa'] },
+                    { name: 'Sl 50 (>=50)', params: { superficie_lorda: 50, tipo_impianto: 'Produzione ACS + riscaldamento', tipo_collettore: 'Sottovuoto' }, operators: ['pa'] },
+                    { name: 'Sl 199.9 (<200)', params: { superficie_lorda: 199.9, tipo_impianto: 'Collettori a concentrazione', tipo_collettore: 'Concentrazione' }, operators: ['pa'] },
+                    { name: 'Sl 200 (>=200)', params: { superficie_lorda: 200, tipo_impianto: 'Collettori a concentrazione', tipo_collettore: 'Concentrazione' }, operators: ['pa'] },
+                    { name: 'Sl 499.9 (<500)', params: { superficie_lorda: 499.9, tipo_impianto: 'Solar cooling', tipo_collettore: 'N/A' }, operators: ['pa'] },
+                    { name: 'Sl 500 (>=500)', params: { superficie_lorda: 500, tipo_impianto: 'Solar cooling', tipo_collettore: 'N/A' }, operators: ['pa'] }
+                ]
+            },
+            'scaldacqua-pdc': {
+                baseParams: { 
+                    capacita: 200, 
+                    classe_energetica: 'Classe A+',
+                    costo_totale: 2000 
+                },
+                hasZone: false,
+                operators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large', 'private_residential'],
+                thresholdCases: [
+                    { name: 'Classe A 149L', params: { capacita: 149, classe_energetica: 'Classe A', costo_totale: 1500 }, operators: ['private_residential','pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Classe A 150L', params: { capacita: 150, classe_energetica: 'Classe A', costo_totale: 1500 }, operators: ['private_residential','pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Classe A 151L', params: { capacita: 151, classe_energetica: 'Classe A', costo_totale: 1500 }, operators: ['private_residential','pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Classe A+ 149L', params: { capacita: 149, classe_energetica: 'Classe A+', costo_totale: 1500 }, operators: ['private_residential','pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Classe A+ 150L', params: { capacita: 150, classe_energetica: 'Classe A+', costo_totale: 1500 }, operators: ['private_residential','pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] },
+                    { name: 'Classe A+ 151L', params: { capacita: 151, classe_energetica: 'Classe A+', costo_totale: 1500 }, operators: ['private_residential','pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large'] }
+                ]
+            },
+            'teleriscaldamento': {
+                baseParams: { 
+                    potenza_contrattuale: 30,
+                    costo_totale: 5000 
+                },
+                hasZone: false,
+                operators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large', 'private_residential'],
+                thresholdCases: [
+                    { name: 'Pn 35kW', params: { potenza_contrattuale: 35, costo_totale: 7000 }, operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large','private_residential'] },
+                    { name: 'Pn 36kW', params: { potenza_contrattuale: 36, costo_totale: 7000 }, operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large','private_residential'] },
+                    { name: 'Pn 100kW', params: { potenza_contrattuale: 100, costo_totale: 16000 }, operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large','private_residential'] },
+                    { name: 'Pn 101kW', params: { potenza_contrattuale: 101, costo_totale: 16000 }, operators: ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large','private_residential'] }
+                ]
+            },
+            'microcogenerazione': {
+                baseParams: { potenza_elettrica: 50, costo_totale: 80000 },
+                hasZone: false,
+                operators: ['pa', 'private_tertiary_person', 'private_tertiary_sme', 'private_tertiary_large', 'private_residential']
+            }
+        };
+
+        // Genera test per ogni combinazione base
+        let testId = 1;
+        for (const [intId, config] of Object.entries(interventionConfigs)) {
+            const operators = config.operators || ['pa'];
+            const zones = config.hasZone ? (config.zones || ['C']) : [null];
+            const premiums = config.premiums || [false];
+            const biomassaStars = config.biomassaStars || [false];
+
+            for (const op of operators) {
+                for (const zone of zones) {
+                    for (const hasPremium of premiums) {
+                        for (const hasBiomassa5 of biomassaStars) {
+                            const params = { ...config.baseParams };
+                            if (zone) params.zona_climatica = zone;
+
+                            params.premiums = {};
+                            if (hasPremium && config.premiums) {
+                                params.premiums['prodotti-ue'] = true;
+                            }
+                            if (hasBiomassa5) {
+                                params.premiums['biomassa-5stelle'] = true;
+                                params.classe_emissioni = 5;
+                            }
+
+                            let name = `${testId}. ${intId}`;
+                            name += ` | ${op.toUpperCase()}`;
+                            if (zone) name += ` | Zona ${zone}`;
+                            if (hasPremium) name += ` | +UE`;
+                            if (hasBiomassa5) name += ` | +5⭐`;
+
+                            testCases.push({
+                                id: testId++,
+                                name,
+                                interventionId: intId,
+                                params,
+                                operatorType: op,
+                                expectedMin: 1,
+                                expectedMax: 999999999
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        // Genera test per i casi di soglia specifici
+        for (const [intId, config] of Object.entries(interventionConfigs)) {
+            const thresholdCases = config.thresholdCases || [];
+            thresholdCases.forEach(tc => {
+                const operators = tc.operators || config.operators || ['pa'];
+                const zones = tc.zones || (config.hasZone ? (config.zones || ['C']) : [null]);
+                const premiums = tc.premiums !== undefined ? tc.premiums : (config.premiums || [false]);
+                const biomassaStars = config.biomassaStars || [false];
+
+                operators.forEach(op => {
+                    zones.forEach(zone => {
+                        premiums.forEach(hasPremium => {
+                            biomassaStars.forEach(hasBiomassa5 => {
+                                const params = { ...config.baseParams, ...tc.params };
+                                if (zone) params.zona_climatica = zone;
+                                params.premiums = {};
+                                if (hasPremium) params.premiums['prodotti-ue'] = true;
+                                if (hasBiomassa5) {
+                                    params.premiums['biomassa-5stelle'] = true;
+                                    params.classe_emissioni = 5;
+                                }
+
+                                let name = `${testId}. ${intId} [Soglia: ${tc.name}]`;
+                                name += ` | ${op.toUpperCase()}`;
+                                if (zone) name += ` | Zona ${zone}`;
+                                if (hasPremium) name += ` | +UE`;
+                                if (hasBiomassa5) name += ` | +5⭐`;
+
+                                testCases.push({
+                                    id: testId++,
+                                    name,
+                                    interventionId: intId,
+                                    params,
+                                    operatorType: op,
+                                    expectedMin: 1,
+                                    expectedMax: 999999999
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        }
+
+        console.log(`📊 Generati ${testCases.length} test automatici`);
+
+        function runAllTests() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h3>⏳ Esecuzione in corso...</h3>';
+
+            let passed = 0;
+            let failed = 0;
+            let skipped = 0;
+            let html = '';
+
+            // Verifiche di policy/ammissibilità
+            html += `<h3>📜 Verifica Regole di Ammissibilità</h3>`;
+            const policyChecks = [
+                {
+                    name: 'Art. 5 non disponibile per Residenziale',
+                    check: () => {
+                        const eff = Object.values(calculatorData.interventions).filter(i => i.category === 'Efficienza Energetica');
+                        return eff.every(i => Array.isArray(i.allowedOperators) && !i.allowedOperators.includes('private_residential'));
+                    }
+                },
+                {
+                    name: 'Pompa di calore ammessa per PA, Terziario (tutti), Residenziale',
+                    check: () => {
+                        const i = calculatorData.interventions['pompa-calore'];
+                        const need = ['pa','private_tertiary_person','private_tertiary_sme','private_tertiary_large','private_residential'];
+                        return need.every(op => i.allowedOperators.includes(op));
+                    }
+                },
+                {
+                    name: 'Sistemi ibridi esclusi per imprese (PMI/Grandi)',
+                    check: () => {
+                        const i = calculatorData.interventions['sistemi-ibridi'];
+                        const banned = ['private_tertiary_sme','private_tertiary_large'];
+                        return banned.every(op => !i.allowedOperators.includes(op));
+                    }
+                }
+            ];
+            policyChecks.forEach(pc => {
+                const ok = pc.check();
+                if (ok) {
+                    html += `<div class="test-result test-pass">✅ ${pc.name}</div>`;
+                    passed++;
+                } else {
+                    html += `<div class="test-result test-fail">❌ ${pc.name}</div>`;
+                    failed++;
+                }
+            });
+
+            // Test combinato: verifica applicazione premi multi-intervento e PMI per PMI terziario
+            // Multi-intervento richiede Titolo II (1.A o 1.B) + Titolo III (2.A, 2.B, 2.C, 2.E)
+            try {
+                const selectedInterventions = ['isolamento-opache', 'pompa-calore'];
+                const inputsByIntervention = {
+                    'isolamento-opache': { superficie: 200, costo_specifico: 250, zona_climatica: 'E' },
+                    'pompa-calore': { tipo_pompa: 'aria/acqua (≤35kW)', potenza_nominale: 20, scop: 4.5, scop_minimo: 3.5, zona_climatica: 'E', costo_totale: 25000 }
+                };
+                const operatorType = 'private_tertiary_sme';
+                const globalPremiums = ['pmi'];
+                const combo = calculatorData.calculateCombinedIncentives(selectedInterventions, inputsByIntervention, operatorType, globalPremiums);
+                const okMulti = combo.appliedGlobalPremiums.some(p => p.id === 'multi-intervento');
+                const okPMI = combo.appliedGlobalPremiums.some(p => p.id === 'pmi');
+                if (okMulti && okPMI && combo.total > 0) {
+                    html += `<div class="test-result test-pass">✅ Premi combinati: multi-intervento e PMI applicati (totale: €${combo.total.toFixed(2)})</div>`;
+                    passed++;
+                } else {
+                    html += `<div class="test-result test-fail">❌ Premi combinati non applicati correttamente (Multi: ${okMulti}, PMI: ${okPMI})</div>`;
+                    failed++;
+                }
+            } catch (e) {
+                html += `<div class="test-result test-fail">❌ Errore test combinato premi: ${e.message}</div>`;
+                failed++;
+            }
+
+            const byIntervention = {};
+            testCases.forEach(test => {
+                if (!byIntervention[test.interventionId]) {
+                    byIntervention[test.interventionId] = [];
+                }
+                byIntervention[test.interventionId].push(test);
+            });
+
+            for (const [intId, tests] of Object.entries(byIntervention)) {
+                const intervention = calculatorData.interventions[intId];
+
+                html += `<h3>📋 ${intervention?.name || intId} (${tests.length} test)</h3>`;
+
+                if (!intervention) {
+                    html += `<div class="test-result test-fail">❌ Intervento non trovato</div>`;
+                    failed += tests.length;
+                    continue;
+                }
+
+                if (!intervention.calculate || typeof intervention.calculate !== 'function') {
+                    html += `<div class="test-result test-warn">⚠️  Calcolo non disponibile (${tests.length} test saltati)</div>`;
+                    skipped += tests.length;
+                    continue;
+                }
+
+                let intPassed = 0;
+                let intFailed = 0;
+
+                tests.forEach(test => {
+                    try {
+                        const result = intervention.calculate(test.params, test.operatorType);
+                        const explain = typeof intervention.explain === 'function' ? intervention.explain(test.params, test.operatorType) : null;
+                        const isValid = result > 0 && result < 999999999;
+
+                        const paramsDisplay = Object.entries(test.params)
+                            .filter(([key]) => key !== 'premiums')
+                            .map(([key, val]) => {
+                                const displayName = key
+                                    .replace(/_/g, ' ')
+                                    .replace(/\b\w/g, l => l.toUpperCase());
+                                return `${displayName}: ${val}`;
+                            })
+                            .join(' | ');
+
+                        if (isValid) {
+                            html += `<div class="test-result test-pass" style="font-size: 11px; padding: 8px; margin: 3px 0;">`;
+                            html += `<strong>✅ ${test.name}</strong><br>`;
+                            html += `<span style="color: #555; margin-left: 20px;">📊 ${paramsDisplay}</span><br>`;
+                            html += `<span style=\"color: green; margin-left: 20px; font-weight: bold;\">💰 Incentivo: €${result.toFixed(2)}</span>`;
+                            if (explain && explain.formula) {
+                                html += `<div style=\"margin-left: 20px; color:#2b6; font-size:10px;\">🧮 Formula: ${explain.formula}</div>`;
+                            }
+                            html += `</div>`;
+                            intPassed++;
+                            passed++;
+                        } else {
+                            html += `<div class="test-result test-fail" style="font-size: 11px; padding: 8px; margin: 3px 0;">`;
+                            html += `<strong>❌ ${test.name}</strong><br>`;
+                            html += `<span style="color: #555; margin-left: 20px;">📊 ${paramsDisplay}</span><br>`;
+                            html += `<span style=\"color: red; margin-left: 20px;\">💰 €${result.toFixed(2)} (invalido)</span>`;
+                            html += `</div>`;
+                            intFailed++;
+                            failed++;
+                        }
+                    } catch (error) {
+                        html += `<div class="test-result test-fail" style="font-size: 11px; padding: 8px; margin: 3px 0;">`;
+                        html += `<strong>❌ ${test.name}</strong><br>`;
+                        html += `<span style="color: red; margin-left: 20px;">ERRORE: ${error.message}</span>`;
+                        html += `</div>`;
+                        intFailed++;
+                        failed++;
+                    }
+                });
+
+                html += `<p><strong>Riepilogo ${intId}:</strong> ✅ ${intPassed} | ❌ ${intFailed}</p>`;
+            }
+
+            const total = testCases.length;
+            document.getElementById('summary').innerHTML = 
+                `<div style="color: ${failed === 0 ? 'green' : (passed > failed ? 'orange' : 'red')}">` +
+                `✅ Passati: ${passed} (${(passed/total*100).toFixed(1)}%) | ` +
+                `❌ Falliti: ${failed} | ` +
+                `⚠️  Saltati: ${skipped} | ` +
+                `📊 Totale: ${total}` +
+                `</div>`;
+
+            resultsDiv.innerHTML = html;
+        }
+
+        function runWASMComparison() {
+            if (typeof window.runComparisonTests === 'function') {
+                window.runComparisonTests();
+                alert(`Test comparazione completato!\nControlla la console per i dettagli.`);
+            } else {
+                alert('Test di comparazione WASM non disponibile.\nAssicurati che compare-wasm-js.js sia caricato.');
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('summary').innerHTML = '';
+        }
+
+        function showFailedOnly() {
+            const results = document.querySelectorAll('.test-result');
+            let hiddenCount = 0;
+            results.forEach(el => {
+                if (el.classList.contains('test-pass')) {
+                    el.style.display = 'none';
+                    hiddenCount++;
+                } else {
+                    el.style.display = 'block';
+                }
+            });
+            alert(`Nascosti ${hiddenCount} test passati. Mostrando solo errori e warning.`);
+        }
+
+        function exportResults() {
+            const timestamp = new Date().toISOString();
+            
+            // Genera CSV per Excel
+            let csv = 'ID;Nome Test;Intervento;Operatore;Zona Climatica;Parametri;Risultato;Incentivo (€);Stato\n';
+            
+            // Raggruppa per intervento come nel runner
+            const byIntervention = {};
+            testCases.forEach(test => {
+                if (!byIntervention[test.interventionId]) {
+                    byIntervention[test.interventionId] = [];
+                }
+                byIntervention[test.interventionId].push(test);
+            });
+            
+            let rowNumber = 1;
+            for (const [intId, tests] of Object.entries(byIntervention)) {
+                const intervention = calculatorData.interventions[intId];
+                
+                if (!intervention || !intervention.calculate) {
+                    tests.forEach(test => {
+                        csv += `${rowNumber++};${escapeCSV(test.name)};${escapeCSV(intId)};${escapeCSV(test.operatorType)};;;ERRORE;0;SALTATO\n`;
+                    });
+                    continue;
+                }
+                
+                tests.forEach(test => {
+                    try {
+                        const result = intervention.calculate(test.params, test.operatorType);
+                        const isValid = result > 0 && result < 999999999;
+                        
+                        // Estrai parametri chiave
+                        const zona = test.params.zona_climatica || '-';
+                        const paramsStr = Object.entries(test.params)
+                            .filter(([key]) => key !== 'premiums')
+                            .map(([key, val]) => `${key}=${val}`)
+                            .join('; ');
+                        
+                        const status = isValid ? 'PASS' : 'FAIL';
+                        const resultStr = result.toFixed(2);
+                        
+                        csv += `${rowNumber++};${escapeCSV(test.name)};${escapeCSV(intId)};${escapeCSV(test.operatorType)};${zona};${escapeCSV(paramsStr)};${resultStr};${resultStr};${status}\n`;
+                    } catch (error) {
+                        csv += `${rowNumber++};${escapeCSV(test.name)};${escapeCSV(intId)};${escapeCSV(test.operatorType)};;;ERRORE;0;ERRORE: ${escapeCSV(error.message)}\n`;
+                    }
+                });
+            }
+            
+            // Scarica CSV
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `test-results-${timestamp.split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function escapeCSV(str) {
+            if (str === null || str === undefined) return '';
+            const s = String(str);
+            if (s.includes(';') || s.includes('"') || s.includes('\n')) {
+                return '"' + s.replace(/"/g, '""') + '"';
+            }
+            return s;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('✅ Test suite pronta');
+            console.log('📊 Dati caricati:', calculatorData ? 'Sì' : 'No');
+            console.log('🔧 WASM disponibile:', window.WASMCalculator ? 'Sì' : 'No');
+            console.log('\n💡 Suggerimento: Clicca su "Esegui Tutti i Test" per iniziare');
+        });
+    </script>
+</body>
+</html>

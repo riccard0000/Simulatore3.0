@@ -1,0 +1,12 @@
+[
+    {
+        "key": "ctrl+shift+b",
+        "command": "workbench.action.tasks.runTask",
+        "args": "🚀 Build Completo + Pacchetto"
+    },
+    {
+        "key": "ctrl+shift+t",
+        "command": "workbench.action.tasks.runTask",
+        "args": "🧪 Test Locale"
+    }
+]

@@ -1,0 +1,93 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "🔨 Build WASM",
+            "type": "shell",
+            "command": "asc",
+            "args": [
+                "assembly/calculator.ts",
+                "-o",
+                "build/calculator.wasm",
+                "--optimize"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📦 Crea Pacchetto per SharePoint",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/scripts/package.ps1"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "focus": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🔄 Sync JS → TypeScript",
+            "type": "shell",
+            "command": "node",
+            "args": [
+                "${workspaceFolder}/scripts/sync-to-wasm.js"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🚀 Build Completo + Pacchetto",
+            "dependsOn": [
+                "🔄 Sync JS → TypeScript",
+                "🔨 Build WASM",
+                "📦 Crea Pacchetto per SharePoint"
+            ],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🧪 Test Locale",
+            "type": "shell",
+            "command": "npx",
+            "args": [
+                "http-server",
+                "src",
+                "-p",
+                "8080",
+                "-o"
+            ],
+            "isBackground": true,
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

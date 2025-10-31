@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Multi-Intervento - Simulatore CT 3.0</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 { color: #004c8c; }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid #ccc;
+        }
+        .test-pass { background: #d4edda; color: #155724; border-left-color: #28a745; }
+        .test-fail { background: #f8d7da; color: #721c24; border-left-color: #dc3545; }
+        .test-warn { background: #fff3cd; color: #856404; border-left-color: #ffc107; }
+        button {
+            color: white;
+            background: #006bb3;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 5px 15px 0;
+            font-size: 15px;
+        }
+        button:hover { background: #005a94; }
+        .summary {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            border-left: 4px solid #004c8c;
+        }
+        .scenario-title {
+            background: #f0f0f0;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔗 Test Multi-Intervento - Simulatore Conto Termico 3.0</h1>
+
+    <div class="test-container">
+        <p>Questi test verificano il corretto funzionamento del calcolatore quando vengono <strong>combinati più interventi</strong>, 
+        assicurando che le maggiorazioni (multi-intervento +10%, PMI +15%, ecc.) vengano applicate correttamente.</p>
+    </div>
+
+    <button onclick="runMultiInterventionTests()">▶️ Esegui Test Multi-Intervento</button>
+    <button onclick="exportResults()">💾 Esporta Risultati CSV</button>
+    <button onclick="clearResults()">🗑️ Pulisci</button>
+
+    <div id="summary" class="summary" style="display:none;"></div>
+    <div id="results"></div>
+
+    <!-- Carica i moduli necessari -->
+    <script src="../src/data.js"></script>
+
+    <script>
+        const testScenarios = [
+            {
+                name: 'Scenario 1: PA - Isolamento + Infissi (multi-intervento)',
+                operator: 'pa',
+                interventions: [
+                    {
+                        id: 'isolamento-opache',
+                        params: { superficie: 200, costo_specifico: 250, zona_climatica: 'D' }
+                    },
+                    {
+                        id: 'sostituzione-infissi',
+                        params: { superficie: 100, costo_specifico: 700, zona_climatica: 'D' }
+                    }
+                ],
+                globalPremiums: [], // Il multi-intervento si applica automaticamente
+                expectedBehavior: {
+                    shouldHaveMultiBonus: true,
+                    minTotal: 100000, // Almeno 100k per PA con questi parametri
+                    interventionCount: 2
+                }
+            },
+            {
+                name: 'Scenario 2: PA - Triplo intervento (Isolamento + Infissi + LED)',
+                operator: 'pa',
+                interventions: [
+                    {
+                        id: 'isolamento-opache',
+                        params: { superficie: 150, costo_specifico: 280, zona_climatica: 'E' }
+                    },
+                    {
+                        id: 'sostituzione-infissi',
+                        params: { superficie: 80, costo_specifico: 750, zona_climatica: 'E' }
+                    },
+                    {
+                        id: 'illuminazione-led',
+                        params: { superficie: 500, costo_specifico: 30, tipo_lampada: 'LED' }
+                    }
+                ],
+                globalPremiums: [],
+                expectedBehavior: {
+                    shouldHaveMultiBonus: true,
+                    minTotal: 150000,
+                    interventionCount: 3
+                }
+            },
+            {
+                name: 'Scenario 3: Terziario PMI - Isolamento + LED (multi + PMI)',
+                operator: 'private_tertiary',
+                interventions: [
+                    {
+                        id: 'isolamento-opache',
+                        params: { superficie: 100, costo_specifico: 250, zona_climatica: 'C' }
+                    },
+                    {
+                        id: 'illuminazione-led',
+                        params: { superficie: 300, costo_specifico: 32, tipo_lampada: 'LED' }
+                    }
+                ],
+                globalPremiums: ['pmi'],
+                expectedBehavior: {
+                    shouldHaveMultiBonus: true,
+                    shouldHavePmiBonus: true,
+                    minTotal: 5000,
+                    interventionCount: 2
+                }
+            },
+            {
+                name: 'Scenario 4: Residenziale - Pompa Calore + Solare Termico',
+                operator: 'private_residential',
+                interventions: [
+                    {
+                        id: 'pompa-calore',
+                        params: {
+                            tipo_pompa: 'aria/acqua (≤35kW)',
+                            potenza_nominale: 25,
+                            scop: 4.3,
+                            scop_minimo: 4.0,
+                            zona_climatica: 'D'
+                        }
+                    },
+                    {
+                        id: 'solare-termico',
+                        params: {
+                            superficie_lorda: 15,
+                            tipo_impianto: 'Produzione ACS',
+                            tipo_collettore: 'Piani vetrati'
+                        }
+                    }
+                ],
+                globalPremiums: [],
+                expectedBehavior: {
+                    shouldHaveMultiBonus: true,
+                    minTotal: 10000,
+                    interventionCount: 2
+                }
+            },
+            {
+                name: 'Scenario 5: PA - Quattro interventi con diagnosi energetica',
+                operator: 'pa',
+                interventions: [
+                    {
+                        id: 'isolamento-opache',
+                        params: { superficie: 120, costo_specifico: 260, zona_climatica: 'C' }
+                    },
+                    {
+                        id: 'sostituzione-infissi',
+                        params: { superficie: 60, costo_specifico: 680, zona_climatica: 'C' }
+                    },
+                    {
+                        id: 'schermature-solari',
+                        params: { superficie: 40, costo_specifico: 140 }
+                    },
+                    {
+                        id: 'illuminazione-led',
+                        params: { superficie: 400, costo_specifico: 28, tipo_lampada: 'LED' }
+                    }
+                ],
+                globalPremiums: ['diagnosi-energetica'],
+                expectedBehavior: {
+                    shouldHaveMultiBonus: true,
+                    shouldHaveDiagnosisBonus: true,
+                    minTotal: 100000,
+                    interventionCount: 4
+                }
+            },
+            {
+                name: 'Scenario 6: Singolo intervento (NO multi-intervento)',
+                operator: 'pa',
+                interventions: [
+                    {
+                        id: 'isolamento-opache',
+                        params: { superficie: 150, costo_specifico: 270, zona_climatica: 'D' }
+                    }
+                ],
+                globalPremiums: [],
+                expectedBehavior: {
+                    shouldHaveMultiBonus: false,
+                    minTotal: 30000,
+                    interventionCount: 1
+                }
+            }
+        ];
+
+        function runMultiInterventionTests() {
+            const resultsDiv = document.getElementById('results');
+            const summaryDiv = document.getElementById('summary');
+            resultsDiv.innerHTML = '<h3>⏳ Esecuzione in corso...</h3>';
+            summaryDiv.style.display = 'none';
+
+            let passed = 0;
+            let failed = 0;
+            let warnings = 0;
+            let html = '';
+
+            testScenarios.forEach((scenario, idx) => {
+                html += `<div class="scenario-title">Test ${idx + 1}: ${scenario.name}</div>`;
+
+                try {
+                    // Prepara i dati per calculateCombinedIncentives
+                    const interventionIds = scenario.interventions.map(int => int.id);
+                    const inputsByIntervention = {};
+                    scenario.interventions.forEach(int => {
+                        inputsByIntervention[int.id] = int.params;
+                    });
+
+                    // Calcola usando la funzione combinata
+                    const result = calculatorData.calculateCombinedIncentives(
+                        interventionIds,
+                        inputsByIntervention,
+                        scenario.operator,
+                        scenario.globalPremiums
+                    );
+
+                    // Verifica comportamenti attesi
+                    let testsPassed = true;
+                    let issues = [];
+
+                    // Check 1: Numero interventi
+                    if (result.details.length !== scenario.expectedBehavior.interventionCount) {
+                        testsPassed = false;
+                        issues.push(`Numero interventi: atteso ${scenario.expectedBehavior.interventionCount}, ottenuto ${result.details.length}`);
+                    }
+
+                    // Check 2: Multi-intervento bonus
+                    const hasMultiBonus = result.appliedGlobalPremiums.some(p => p.id === 'multi-intervento');
+                    if (scenario.expectedBehavior.shouldHaveMultiBonus && !hasMultiBonus) {
+                        testsPassed = false;
+                        issues.push('Bonus multi-intervento (+10%) NON applicato');
+                    } else if (!scenario.expectedBehavior.shouldHaveMultiBonus && hasMultiBonus) {
+                        testsPassed = false;
+                        issues.push('Bonus multi-intervento applicato erroneamente (solo 1 intervento)');
+                    }
+
+                    // Check 3: PMI bonus
+                    if (scenario.expectedBehavior.shouldHavePmiBonus) {
+                        const hasPmiBonus = result.appliedGlobalPremiums.some(p => p.id === 'pmi');
+                        if (!hasPmiBonus) {
+                            testsPassed = false;
+                            issues.push('Bonus PMI (+15%) NON applicato');
+                        }
+                    }
+
+                    // Check 4: Diagnosi energetica
+                    if (scenario.expectedBehavior.shouldHaveDiagnosisBonus) {
+                        const hasDiagnosis = result.appliedGlobalPremiums.some(p => p.id === 'diagnosi-energetica');
+                        if (!hasDiagnosis) {
+                            testsPassed = false;
+                            issues.push('Bonus diagnosi energetica (€1000) NON applicato');
+                        }
+                    }
+
+                    // Check 5: Totale minimo
+                    if (result.total < scenario.expectedBehavior.minTotal) {
+                        warnings++;
+                        issues.push(`Totale sotto soglia minima: €${result.total.toFixed(2)} < €${scenario.expectedBehavior.minTotal.toFixed(2)}`);
+                    }
+
+                    // Rendering risultati
+                    if (testsPassed && issues.length === 0) {
+                        html += `<div class="test-result test-pass">`;
+                        html += `<strong>✅ PASS</strong><br>`;
+                        passed++;
+                    } else if (issues.length > 0 && testsPassed) {
+                        html += `<div class="test-result test-warn">`;
+                        html += `<strong>⚠️ PASS con avvisi</strong><br>`;
+                        passed++;
+                        warnings++;
+                    } else {
+                        html += `<div class="test-result test-fail">`;
+                        html += `<strong>❌ FAIL</strong><br>`;
+                        failed++;
+                    }
+
+                    // Dettagli calcolo
+                    html += `<div style="margin-left: 20px; margin-top: 10px;">`;
+                    html += `<strong>Dettaglio:</strong><br>`;
+                    html += `• Subtotale interventi: €${result.subtotal.toFixed(2)}<br>`;
+                    result.details.forEach(d => {
+                        html += `&nbsp;&nbsp;- ${d.name}: €${d.finalIncentive.toFixed(2)}<br>`;
+                    });
+                    if (result.appliedGlobalPremiums.length > 0) {
+                        html += `• Premialità globali:<br>`;
+                        result.appliedGlobalPremiums.forEach(p => {
+                            html += `&nbsp;&nbsp;+ ${p.name}: €${p.value.toFixed(2)}<br>`;
+                        });
+                    }
+                    html += `• <strong>Totale finale: €${result.total.toFixed(2)}</strong>`;
+                    if (result.wasCapped) {
+                        html += ` <span style="color: orange;">(cap applicato da €${result.originalTotal.toFixed(2)})</span>`;
+                    }
+                    html += `</div>`;
+
+                    // Mostra issues
+                    if (issues.length > 0) {
+                        html += `<div style="margin-left: 20px; margin-top: 10px; color: #856404;">`;
+                        html += `<strong>Avvisi/Errori:</strong><br>`;
+                        issues.forEach(issue => {
+                            html += `• ${issue}<br>`;
+                        });
+                        html += `</div>`;
+                    }
+
+                    html += `</div>`;
+
+                } catch (error) {
+                    failed++;
+                    html += `<div class="test-result test-fail">`;
+                    html += `<strong>❌ ERRORE</strong><br>`;
+                    html += `<span style="color: red;">Eccezione: ${error.message}</span>`;
+                    html += `</div>`;
+                }
+            });
+
+            // Mostra riepilogo
+            const total = testScenarios.length;
+            summaryDiv.innerHTML = 
+                `<div style="font-size: 18px;">` +
+                `<strong>Risultati Test Multi-Intervento</strong><br>` +
+                `✅ Passati: ${passed}/${total} | ` +
+                `❌ Falliti: ${failed} | ` +
+                `⚠️ Avvisi: ${warnings}` +
+                `</div>`;
+            summaryDiv.style.display = 'block';
+
+            resultsDiv.innerHTML = html;
+        }
+
+        function exportResults() {
+            // TODO: implementare export CSV simile al test-runner
+            alert('Export CSV in fase di implementazione');
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('summary').style.display = 'none';
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('✅ Test multi-intervento pronto');
+            console.log('📊 Dati caricati:', calculatorData ? 'Sì' : 'No');
+            console.log('🔗 Funzione calcolo combinato:', typeof calculatorData.calculateCombinedIncentives === 'function' ? 'Disponibile' : 'NON disponibile');
+        });
+    </script>
+</body>
+</html>
