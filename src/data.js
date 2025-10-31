@@ -238,28 +238,47 @@ const calculatorData = {
         }
     },
 
-    // Campi aggiuntivi specifici per soggetto (es. popolazione comune per PA)
-    // NOTA: La maggiorazione per comuni sotto 15.000 abitanti si applica SOLO ai Comuni
-    // (non ad altre PA) secondo le Regole Applicative CT 3.0, paragrafo 586
+    // Campi aggiuntivi specifici per soggetto e modalità di realizzazione
+    // NOTA: La maggiorazione per comuni sotto 15.000 abitanti si applica SOLO quando:
+    // 1. Il soggetto è un Comune (non altra PA)
+    // 2. Modalità di realizzazione: Intervento Diretto
+    // 3. L'edificio è di proprietà E utilizzato dal Comune
+    // Riferimento: Regole Applicative CT 3.0, paragrafo 586
     subjectSpecificFields: {
-        pa: [
+        // Questi campi non sono più utilizzati qui, spostati in implementationModeFields
+    },
+
+    // Campi specifici che compaiono dopo la selezione della modalità di realizzazione
+    implementationModeFields: {
+        // Solo per PA + Intervento Diretto
+        pa_direct: [
             {
                 id: 'is_comune',
                 name: 'Il soggetto richiedente è un Comune?',
                 type: 'checkbox',
-                help: 'Seleziona se sei un Comune (non altra PA come Regione, Provincia, ASL, etc.)',
+                help: 'Seleziona se sei un Comune (non altra PA come Regione, Provincia, ASL, Università, etc.)',
                 optional: false,
                 affects_incentive: false,
-                shows: ['is_piccolo_comune'] // Mostra il campo successivo solo se checked
+                shows: ['is_edificio_comunale'] // Mostra il campo successivo solo se checked
+            },
+            {
+                id: 'is_edificio_comunale',
+                name: 'L\'edificio è di proprietà del Comune ed è utilizzato dallo stesso Comune?',
+                type: 'checkbox',
+                help: 'Entrambe le condizioni devono essere vere: proprietà comunale E utilizzo da parte del Comune',
+                optional: true,
+                affects_incentive: false,
+                visible_if: { field: 'is_comune', value: true },
+                shows: ['is_piccolo_comune']
             },
             {
                 id: 'is_piccolo_comune',
                 name: 'Il Comune ha popolazione inferiore a 15.000 abitanti?',
                 type: 'checkbox',
-                help: 'Se SI, si applica automaticamente l\'incentivo al 100% della spesa ammissibile su tutti gli interventi (Regole Applicative CT 3.0, paragrafo 586)',
+                help: 'Se SÌ, si applica automaticamente l\'incentivo al 100% della spesa ammissibile. Dovrai attestare questa condizione in fase di richiesta al GSE.',
                 optional: true,
                 affects_incentive: true,
-                visible_if: { field: 'is_comune', value: true } // Visibile solo se is_comune è true
+                visible_if: { field: 'is_edificio_comunale', value: true }
             }
         ]
     },
@@ -1329,11 +1348,17 @@ const calculatorData = {
         const isArt48ter = contextData.buildingSubcategory && 
                           ['tertiary_school', 'tertiary_hospital', 'tertiary_prison'].includes(contextData.buildingSubcategory);
         
-        // 2. Comuni < 15.000 abitanti - SOLO per Comuni (non altre PA)
-        // Verifica che sia effettivamente un Comune E che abbia meno di 15.000 abitanti
+        // 2. Comuni < 15.000 abitanti - SOLO per Comuni con intervento diretto su edificio di proprietà e utilizzo comunale
+        // Requisiti cumulativi:
+        // - Deve essere un Comune (non altra PA)
+        // - Edificio di proprietà E utilizzato dal Comune
+        // - Popolazione < 15.000 abitanti
+        // - Modalità: intervento diretto
         const isPiccoloComune = contextData.is_comune === true && 
+                               contextData.is_edificio_comunale === true &&
                                contextData.is_piccolo_comune === true &&
-                               contextData.subjectType === 'pa';
+                               contextData.subjectType === 'pa' &&
+                               contextData.implementationMode === 'direct';
         
         const hasIncentivo100 = isArt48ter || isPiccoloComune;
 
@@ -1432,7 +1457,7 @@ const calculatorData = {
                 };
                 premiumNote = `Art. 48-ter applicato automaticamente per ${buildingNames[contextData.buildingSubcategory]}. Incentivo al 100% della spesa ammissibile (totale spesa: €${totalCost.toLocaleString('it-IT')}, tetto massimo: €${totalImas.toLocaleString('it-IT')})`;
             } else if (isPiccoloComune) {
-                premiumNote = `Comune con popolazione inferiore a 15.000 abitanti. Incentivo al 100% della spesa ammissibile (totale spesa: €${totalCost.toLocaleString('it-IT')}, tetto massimo: €${totalImas.toLocaleString('it-IT')})`;
+                premiumNote = `Maggiorazione per Comune sotto 15.000 abitanti applicata. L'edificio è di proprietà ed utilizzato dal Comune, con intervento diretto. Incentivo al 100% della spesa ammissibile (totale spesa: €${totalCost.toLocaleString('it-IT')}, tetto massimo: €${totalImas.toLocaleString('it-IT')}). Dovrai attestare queste condizioni nella richiesta al GSE.`;
             }
 
             return {
