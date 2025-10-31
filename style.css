@@ -1,0 +1,388 @@
+/* --- Stile Ispirato a GSE.it --- */
+
+:root {
+    --gse-blue: #004c8c; /* Blu primario GSE */
+    --gse-light-blue: #e8f1f7; /* Blu chiaro per sfondi o dettagli */
+    --gse-accent: #007bff; /* Un blu più brillante per l'interazione */
+    --text-primary: #333333;
+    --text-secondary: #555555;
+    --background-color: #f5f8fa;
+    --card-background: #ffffff;
+    --border-color: #dee2e6;
+}
+
+body {
+    font-family: 'Titillium Web', sans-serif; /* Font simile a quello usato da GSE */
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 20px;
+    color: var(--text-primary);
+}
+
+#calculator-container {
+    max-width: 800px;
+    margin: 40px auto;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: var(--gse-blue);
+    text-align: center;
+    margin-bottom: 40px;
+    font-weight: 600;
+}
+
+h2 {
+    font-size: 1.5rem;
+    color: var(--gse-blue);
+    border-bottom: 2px solid var(--gse-blue);
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+.card {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+select, input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+select:focus, input[type="text"]:focus, input[type="number"]:focus {
+    outline: none;
+    border-color: var(--gse-accent);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+.category-wrapper {
+    margin-bottom: 20px;
+}
+
+.category-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#interventions-list .intervention,
+#premiums-list .premium {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+    margin-left: 10px; /* Indenta gli interventi sotto la categoria */
+}
+
+.notice {
+    color: var(--text-secondary);
+    background-color: rgba(0, 76, 140, 0.08);
+    border-left: 4px solid var(--gse-blue);
+    padding: 12px 16px;
+    border-radius: 4px;
+}
+
+#interventions-list .intervention:hover,
+#premiums-list .premium:hover {
+    background-color: var(--gse-light-blue);
+}
+
+#interventions-list .intervention input[type="checkbox"],
+#premiums-list .premium input[type="checkbox"] {
+    width: 1.3em;
+    height: 1.3em;
+    margin-right: 12px;
+    cursor: pointer;
+}
+
+/* Stili pulsanti */
+.btn-primary, .btn-secondary {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.2s;
+    letter-spacing: 0.5px;
+}
+
+/* --- HOTFIX: Nascondi checkbox Multi-intervento (applicato automaticamente) --- */
+/* Se, per cache o versioni precedenti, venisse ancora renderizzata la checkbox
+     per la "Maggiorazione multi-intervento", la nascondiamo a livello di stile. */
+input[id$="-multi-intervento"],
+label[for$="-multi-intervento"] {
+    display: none !important;
+}
+
+.btn-primary {
+    background-color: var(--gse-accent);
+    color: white;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#result-container {
+    background-color: var(--gse-light-blue);
+    border-left: 5px solid var(--gse-accent);
+    margin-top: 30px;
+}
+
+#result-container h2 {
+    border-color: var(--gse-accent);
+}
+
+#result-amount {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gse-blue);
+}
+
+#dynamic-inputs .input-group {
+    margin-bottom: 25px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #fdfdfd;
+}
+
+#dynamic-inputs .input-group h3 {
+    margin-top: 0;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    border-bottom: 1px solid #e5e5e5;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Stili per validazione campi obbligatori */
+input.required-field, select.required-field {
+    border: 2px solid var(--border-color);
+    transition: border-color 0.3s;
+}
+
+input.required-field:focus, select.required-field:focus {
+    outline: none;
+    border-color: var(--gse-blue);
+}
+
+input.invalid, select.invalid {
+    border-color: #dc3545 !important;
+    background-color: #fff5f5;
+    animation: shake 0.3s;
+}
+
+input.invalid:focus, select.invalid:focus {
+    outline: 2px solid #dc3545;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Etichetta per campi obbligatori */
+.form-group label::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Tooltip per interventi */
+.tooltip-icon {
+    display: inline-block;
+    margin-left: 8px;
+    cursor: help;
+    color: var(--gse-blue);
+    position: relative;
+    vertical-align: middle;
+    transition: transform 0.2s;
+}
+
+.tooltip-icon:hover {
+    transform: scale(1.15);
+    color: var(--gse-accent);
+}
+
+.tooltip-icon::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%) translateY(-8px);
+    background-color: rgba(0, 38, 58, 0.95);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    white-space: normal;
+    width: 320px;
+    max-width: 90vw;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+    z-index: 1000;
+    pointer-events: none;
+    text-align: left;
+    font-weight: normal;
+}
+
+.tooltip-icon::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%) translateY(-2px);
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 38, 58, 0.95);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 1001;
+}
+
+.tooltip-icon:hover::after,
+.tooltip-icon:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-4px);
+}
+
+.tooltip-icon svg {
+    display: block;
+}
+
+/* Disclaimer legale */
+.disclaimer {
+    background-color: #fff9e6;
+    border: 2px solid #ffc107;
+    border-left: 5px solid #ff9800;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.disclaimer h4 {
+    color: #e65100;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.disclaimer p {
+    color: #5d4037;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+}
+
+.disclaimer p strong {
+    color: #bf360c;
+}
+
+.disclaimer ul {
+    margin: 10px 0 15px 20px;
+    color: #5d4037;
+}
+
+.disclaimer ul li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+/* Dettagli calcolo parlanti */
+.formula {
+    background: #f8fafc;
+    border-left: 4px solid var(--gse-blue);
+    padding: 8px 12px;
+    margin: 10px 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.95rem;
+}
+.details-toggle {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    color: var(--gse-blue);
+    margin-top: 8px;
+}
+.details-toggle:hover { background: var(--gse-light-blue); }
+.details-panel { margin: 8px 0 16px; padding: 8px 10px; background: #fff; border: 1px dashed var(--border-color); border-radius: 6px; }
+.vars-wrapper { overflow-x: auto; }
+.vars-table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+.vars-table th, .vars-table td { border: 1px solid var(--border-color); padding: 6px 8px; font-size: 0.9rem; }
+.vars-table th { background: #f4f6f8; text-align: left; }
+.steps { margin: 8px 0 10px 20px; }
+.refs { font-size: 0.9rem; color: var(--text-secondary); margin-top: 6px; }
+.premi-int ul { margin: 6px 0 6px 18px; }
+.int-list { list-style: none; padding-left: 0; }
+.int-list > li { margin: 10px 0; padding: 10px 12px; background: #fff; border: 1px solid var(--border-color); border-radius: 6px; }
+
