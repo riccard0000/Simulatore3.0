@@ -309,6 +309,9 @@ async function initCalculator() {
         subjectTypeSelect.addEventListener('change', (e) => {
             state.selectedSubject = e.target.value;
             
+            // Reset dati specifici del soggetto precedente
+            state.subjectSpecificData = {};
+            
             // Mostra step 2
             buildingCategoryGroup.style.display = 'block';
             
@@ -317,6 +320,9 @@ async function initCalculator() {
             
             // Filtra le modalità di realizzazione
             updateImplementationModeOptions();
+            
+            // Rimuovi i campi specifici se cambio soggetto (potrebbero non essere più pertinenti)
+            renderImplementationModeFields();
             
             // Mostra campi specifici del soggetto (es. popolazione comune per PA)
             renderSubjectSpecificFields();
@@ -643,16 +649,22 @@ async function initCalculator() {
         const fieldKey = `${state.selectedSubject}_${state.selectedMode}`;
         const modeFields = calculatorData.implementationModeFields?.[fieldKey];
         
+        console.log(`🔍 renderImplementationModeFields: fieldKey="${fieldKey}", ha campi:`, !!modeFields);
+        
         // Rimuovi contenitore esistente se presente
         const existingContainer = document.getElementById('implementation-mode-fields');
         if (existingContainer) {
             existingContainer.remove();
+            console.log(`🗑️  Container rimosso`);
         }
 
         if (!modeFields || modeFields.length === 0) {
+            console.log(`✅ Nessun campo da mostrare per ${fieldKey}`);
             return;
         }
 
+        console.log(`📋 Creazione campi per ${fieldKey}:`, modeFields.length, 'campi');
+        
         // Crea una sezione dedicata dopo il gruppo implementation-mode
         const fieldsContainer = document.createElement('div');
         fieldsContainer.id = 'implementation-mode-fields';
@@ -784,10 +796,27 @@ async function initCalculator() {
                     inputEl = document.createElement('select');
                     input.options.forEach(opt => {
                         const option = document.createElement('option');
-                        option.value = opt;
-                        option.textContent = opt;
+                        // Supporta sia stringhe semplici che oggetti {value, label}
+                        if (typeof opt === 'string') {
+                            option.value = opt;
+                            option.textContent = opt;
+                        } else {
+                            option.value = opt.value;
+                            option.textContent = opt.label || opt.value;
+                            if (opt.cmax) {
+                                option.dataset.cmax = opt.cmax;
+                            }
+                        }
                         inputEl.appendChild(option);
                     });
+                } else if (input.type === 'computed') {
+                    // Campo calcolato automaticamente (readonly)
+                    inputEl = document.createElement('input');
+                    inputEl.type = 'text';
+                    inputEl.readOnly = true;
+                    inputEl.className = 'computed-field';
+                    inputEl.style.backgroundColor = '#f0f0f0';
+                    inputEl.style.cursor = 'not-allowed';
                 } else {
                     inputEl = document.createElement('input');
                     inputEl.type = input.type;
@@ -799,22 +828,35 @@ async function initCalculator() {
                 inputEl.id = `input-${intId}-${input.id}`;
                 inputEl.dataset.intervention = intId;
                 inputEl.dataset.inputId = input.id;
+                
+                // Aggiungi tooltip se presente
+                if (input.help) {
+                    inputEl.title = input.help;
+                }
+                
                 inputDiv.appendChild(inputEl);
                 groupDiv.appendChild(inputDiv);
 
                 // Ripristina il valore salvato se esiste, altrimenti inizializza
-                const savedValue = state.inputValues[intId][input.id];
-                if (savedValue !== undefined && savedValue !== null) {
-                    inputEl.value = savedValue;
+                if (input.type === 'computed') {
+                    // I campi computed vengono aggiornati dinamicamente
+                    const computedValue = input.compute ? input.compute(state.inputValues[intId] || {}) : '';
+                    inputEl.value = computedValue;
+                    state.inputValues[intId][input.id] = computedValue;
                 } else {
-                    state.inputValues[intId][input.id] = inputEl.value || null;
+                    const savedValue = state.inputValues[intId][input.id];
+                    if (savedValue !== undefined && savedValue !== null) {
+                        inputEl.value = savedValue;
+                    } else {
+                        state.inputValues[intId][input.id] = inputEl.value || null;
+                    }
+                    
+                    inputEl.addEventListener('change', handleInputChange);
+                    inputEl.addEventListener('keyup', handleInputChange);
+                    
+                    // Aggiungi classe per campi obbligatori
+                    inputEl.classList.add('required-field');
                 }
-                
-                inputEl.addEventListener('change', handleInputChange);
-                inputEl.addEventListener('keyup', handleInputChange);
-                
-                // Aggiungi classe per campi obbligatori
-                inputEl.classList.add('required-field');
             });
 
             // Sezione premi per-intervento
@@ -1096,8 +1138,28 @@ async function initCalculator() {
         const value = e.target.type === 'number' ? parseFloat(e.target.value) : e.target.value;
         state.inputValues[intervention][inputId] = value;
         
+        // Aggiorna i campi computed per questo intervento
+        updateComputedFields(intervention);
+        
         // Valida in tempo reale
         validateRequiredFields();
+    }
+
+    // Funzione per aggiornare i campi calcolati automaticamente
+    function updateComputedFields(interventionId) {
+        const interventionData = calculatorData.interventions[interventionId];
+        if (!interventionData || !interventionData.inputs) return;
+        
+        interventionData.inputs.forEach(input => {
+            if (input.type === 'computed' && input.compute) {
+                const inputEl = document.getElementById(`input-${interventionId}-${input.id}`);
+                if (inputEl) {
+                    const computedValue = input.compute(state.inputValues[interventionId] || {});
+                    inputEl.value = computedValue;
+                    state.inputValues[interventionId][input.id] = computedValue;
+                }
+            }
+        });
     }
 
     // --- LOGICA DI CALCOLO ---

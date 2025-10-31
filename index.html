@@ -92,8 +92,12 @@
     </div>
 
     <!-- Caricamento moduli -->
-    <script src="data.js"></script>
-    <script src="script.js"></script>
+    <script>
+    // Cache busting con timestamp
+    const timestamp = new Date().getTime();
+    document.write('<script src="data.js?cb=' + timestamp + '"><\/script>');
+    document.write('<script src="script.js?cb=' + timestamp + '"><\/script>');
+    </script>
 
 </body>
 </html>
