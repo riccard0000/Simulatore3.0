@@ -309,6 +309,9 @@ async function initCalculator() {
         subjectTypeSelect.addEventListener('change', (e) => {
             state.selectedSubject = e.target.value;
             
+            // Reset dati specifici del soggetto precedente
+            state.subjectSpecificData = {};
+            
             // Mostra step 2
             buildingCategoryGroup.style.display = 'block';
             
@@ -646,16 +649,22 @@ async function initCalculator() {
         const fieldKey = `${state.selectedSubject}_${state.selectedMode}`;
         const modeFields = calculatorData.implementationModeFields?.[fieldKey];
         
+        console.log(`🔍 renderImplementationModeFields: fieldKey="${fieldKey}", ha campi:`, !!modeFields);
+        
         // Rimuovi contenitore esistente se presente
         const existingContainer = document.getElementById('implementation-mode-fields');
         if (existingContainer) {
             existingContainer.remove();
+            console.log(`🗑️  Container rimosso`);
         }
 
         if (!modeFields || modeFields.length === 0) {
+            console.log(`✅ Nessun campo da mostrare per ${fieldKey}`);
             return;
         }
 
+        console.log(`📋 Creazione campi per ${fieldKey}:`, modeFields.length, 'campi');
+        
         // Crea una sezione dedicata dopo il gruppo implementation-mode
         const fieldsContainer = document.createElement('div');
         fieldsContainer.id = 'implementation-mode-fields';
