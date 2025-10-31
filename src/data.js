@@ -239,25 +239,27 @@ const calculatorData = {
     },
 
     // Campi aggiuntivi specifici per soggetto (es. popolazione comune per PA)
+    // NOTA: La maggiorazione per comuni sotto 15.000 abitanti si applica SOLO ai Comuni
+    // (non ad altre PA) secondo le Regole Applicative CT 3.0, paragrafo 586
     subjectSpecificFields: {
         pa: [
             {
-                id: 'is_piccolo_comune',
-                name: 'Il comune ha meno di 15.000 abitanti?',
+                id: 'is_comune',
+                name: 'Il soggetto richiedente è un Comune?',
                 type: 'checkbox',
-                help: 'Se SI, si applica automaticamente l\'incentivo al 100% della spesa ammissibile su tutti gli interventi (Regole Applicative CT 3.0)',
-                optional: true,
-                affects_incentive: true
-            }
-        ],
-        ets_non_economic: [
+                help: 'Seleziona se sei un Comune (non altra PA come Regione, Provincia, ASL, etc.)',
+                optional: false,
+                affects_incentive: false,
+                shows: ['is_piccolo_comune'] // Mostra il campo successivo solo se checked
+            },
             {
                 id: 'is_piccolo_comune',
-                name: 'Il comune ha meno di 15.000 abitanti? (se applicabile)',
+                name: 'Il Comune ha popolazione inferiore a 15.000 abitanti?',
                 type: 'checkbox',
-                help: 'Se SI, si applica automaticamente l\'incentivo al 100% della spesa ammissibile su tutti gli interventi',
+                help: 'Se SI, si applica automaticamente l\'incentivo al 100% della spesa ammissibile su tutti gli interventi (Regole Applicative CT 3.0, paragrafo 586)',
                 optional: true,
-                affects_incentive: true
+                affects_incentive: true,
+                visible_if: { field: 'is_comune', value: true } // Visibile solo se is_comune è true
             }
         ]
     },
@@ -1327,9 +1329,11 @@ const calculatorData = {
         const isArt48ter = contextData.buildingSubcategory && 
                           ['tertiary_school', 'tertiary_hospital', 'tertiary_prison'].includes(contextData.buildingSubcategory);
         
-        // 2. Comuni < 15.000 abitanti (PA/ETS) - usa flag booleano
-        const isPiccoloComune = contextData.is_piccolo_comune === true &&
-                               (contextData.subjectType === 'pa' || contextData.subjectType === 'ets_non_economic');
+        // 2. Comuni < 15.000 abitanti - SOLO per Comuni (non altre PA)
+        // Verifica che sia effettivamente un Comune E che abbia meno di 15.000 abitanti
+        const isPiccoloComune = contextData.is_comune === true && 
+                               contextData.is_piccolo_comune === true &&
+                               contextData.subjectType === 'pa';
         
         const hasIncentivo100 = isArt48ter || isPiccoloComune;
 
