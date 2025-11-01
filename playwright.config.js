@@ -22,7 +22,7 @@ module.exports = defineConfig({
   // Opzioni globali per tutti i test
   use: {
     // URL base dell'applicazione
-    baseURL: 'http://localhost:8080',
+  baseURL: 'http://localhost:8085',
 
     // Screenshot solo in caso di fallimento
     screenshot: 'only-on-failure',
@@ -82,8 +82,8 @@ module.exports = defineConfig({
 
   // Web server locale (opzionale - avvia automaticamente http-server)
   webServer: {
-    command: 'npx http-server src -p 8080',
-    port: 8080,
+    command: 'npx http-server src -p 8085',
+    port: 8085,
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI, // Riusa server esistente in sviluppo
   },

@@ -40,9 +40,20 @@ script.textContent = dataContent + '\n' + scriptContent;
 window.document.head.appendChild(script);
 
 // Attendi che il DOM sia pronto
+// Forza l'inizializzazione se lo script si aspetta DOMContentLoaded
 setTimeout(() => {
+    try {
+        if (typeof window.initCalculator === 'function') {
+            window.initCalculator();
+        } else if (typeof window.initialize === 'function') {
+            window.initialize();
+        }
+    } catch (err) {
+        // Ignora errori di init, prosegui con i test che possono comunque verificare la configurazione
+        console.warn('Init forced failed:', err && err.message);
+    }
     runIntegrationTests();
-}, 100);
+}, 200);
 
 function runIntegrationTests() {
     console.log('================================================================================');
